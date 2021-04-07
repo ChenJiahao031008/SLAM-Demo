@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-26 11:25:51
- * @LastEditTime: 2021-03-29 16:44:58
+ * @LastEditTime: 2021-04-06 21:51:27
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /极线可视化/include/config.h
@@ -11,6 +11,11 @@
 
 #include <iostream>
 #include <string>
+#include <iostream>
+#include <opencv2/core/core.hpp>
+#include <opencv2/opencv.hpp>
+#include <vector>
+#include <cassert>
 
 class Config
 {
@@ -44,6 +49,13 @@ public:
         cv::Mat DistCoef = cv::Mat::zeros(4,1,CV_32F);
     };
 
+    struct OptimizationConfig
+    {
+        int maxRansacIter;
+        double ErrorTH;
+    };
+
+
 
 public:
     cv::FileStorage SettingsFile;
@@ -51,13 +63,15 @@ public:
     AppSettings app;
     StereoSetting ss;
     InternalParameters ip;
+    OptimizationConfig oc;
 
 public:
     Config(cv::FileStorage &fsSettings):SettingsFile(fsSettings)
     {
         AppSettingsInit();
 
-        InternalParameters();
+        InternalParametersInit();
+        OptimizationConfigInit();
 
         if (app.Stereo)
             StereoSettingInit();
@@ -82,7 +96,7 @@ public:
         ss.MatchingMethod = SettingsFile["Stereo.MatchingMethod"];
     };
 
-    void InternalParameters(){
+    void InternalParametersInit(){
         ip.fx = SettingsFile["Camera.fx"];
         ip.fy = SettingsFile["Camera.fy"];
         ip.cx = SettingsFile["Camera.cx"];
@@ -97,13 +111,12 @@ public:
         ip.DistCoef.at<float>(3) = SettingsFile["Camera.p2"];
     };
 
+    void OptimizationConfigInit(){
+        oc.maxRansacIter = SettingsFile["Opts.maxRansacIter"];
+        oc.ErrorTH = SettingsFile["Opts.ErrorTH"];
+    }
+
 };
-//   0.00166144           -0  6.44137e-39
-//            0   0.00546119 -2.50832e-43
-//            0            0            1
-//   0.00166144           -0       333717
-//            0   0.00546119 -2.50832e-43
-//            0            0            1
 
 #endif //CONFIG_H
 

@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-28 17:41:34
- * @LastEditTime: 2021-04-01 19:47:17
+ * @LastEditTime: 2021-04-07 10:21:54
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /极线可视化/src/PoseSolver.cc
@@ -14,6 +14,7 @@
 #include <opencv2/features2d/features2d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <cmath>
+#include <cassert>
 
 // #include <opencv2/core/eigen.hpp>
 #include <Eigen/Dense>
@@ -22,8 +23,19 @@
 
 #include "Config.h"
 #include "PoseSolver.h"
+#include "Optimization.h"
 
-PoseSolver::PoseSolver(std::vector<cv::Point3f> &coord_0, std::vector<cv::Point3f> &coord_1, Config &config)
+#define DEBUG
+#ifdef DEBUG
+    #define CHECK_INFO(x) std::cout << "[DEBUG] " << x << std::endl;
+    #define CHECK_INFO_2(x,y) std::cout << "[DEBUG] " << x << y << std::endl;
+#else
+    #define CHECK_INFO(x) /\
+    /std::cout << x << std::endl;
+    #define CHECK_INFO_2(x,y) //std::cout << "[DEBUG] " << x << y << std::endl;
+#endif
+
+PoseSolver::PoseSolver(std::vector<cv::Point3f> &coord_0, std::vector<cv::Point3f> &coord_1, Config &config, int initFlag)
     : PointsInPixelVec_0(coord_0),PointsInPixelVec_1(coord_1), setting(config)
 {
     PixelPointsDict.insert(std::pair< int, std::vector<cv::Point3f>* >(0, &PointsInPixelVec_0));
@@ -32,6 +44,12 @@ PoseSolver::PoseSolver(std::vector<cv::Point3f> &coord_0, std::vector<cv::Point3
     WorldPointsDict.insert(std::pair< int, std::vector<cv::Point3f>* >(1, &PointsInWorldVec_1));
     SetOrigin(0);
 }
+
+PoseSolver::PoseSolver(std::vector<cv::Point3f> &ptInWorld_0, std::vector<cv::Point3f> &ptInPixel_1, Config &config) : PointsInPixelVec_0(ptInWorld_0),PointsInPixelVec_1(ptInPixel_1), setting(config)
+{
+    SetOrigin(1);
+}
+
 
 PoseSolver::~PoseSolver()
 {
@@ -46,8 +64,12 @@ void PoseSolver::SetOrigin(const int &flag){
     if (flag==0){
         Pose_0 = Eigen::Matrix4f::Identity();
         CamOrientation_0 << 0, 0, 1;
+        Unproject(0,Pose_0);
+    }else{
+        Pose_0 = Eigen::Matrix4f::Identity();
+        CamOrientation_0 << 0, 0, 1;
     }
-    Unproject(0,Pose_0);
+
 }
 
 void PoseSolver::Unproject(const int &PoseId, const Eigen::Matrix4f &T)
@@ -77,12 +99,48 @@ void PoseSolver::Unproject(const int &PoseId, const Eigen::Matrix4f &T)
 void PoseSolver::ComputePnP()
 {
     // CheckReProjrctError();
-    KneipPnP(10,20,30,40);
+    // std::vector<int> ls={10,20,30,40};
+    // KneipPnP(ls,PointsInWorldVec_0,PointsInPixelVec_1);
+    Optimization opts(setting);
+    std::vector<int> Interior;
+    Interior.resize(PointsInWorldVec_0.size());
+    opts.Kneip_Ransac(PointsInWorldVec_0, PointsInPixelVec_1, Interior, T12_ransac);
+
+
+    // CHECK POINT BEGIN
+    CHECK_INFO("Before: ");
+    CHECK_INFO_2("Size: ",PointsInWorldVec_0.size());
+    double error = Average_ReProjectError(PointsInWorldVec_0, PointsInPixelVec_1, T12_ransac);
+    CHECK_INFO_2("average error: ",error);
+
+    std::vector< cv::Point3f > tmp_PW0, tmp_PP1;
+    for (size_t i(0); i<Interior.size(); ++i){
+        if(Interior[i]==1){
+            tmp_PW0.emplace_back(PointsInWorldVec_0[i]);
+            tmp_PP1.emplace_back(PointsInPixelVec_1[i]);
+        }
+    }
+
+    CHECK_INFO("After: ");
+    PointsInWorldVec_0 = tmp_PW0;
+    PointsInPixelVec_1 = tmp_PP1;
+    CHECK_INFO_2("Size: ",PointsInWorldVec_0.size());
+    double Interior_Error = Average_ReProjectError(PointsInWorldVec_0, PointsInPixelVec_1, T12_ransac);
+    CHECK_INFO_2("average error: ",Interior_Error);
+
+    // CHECK POINT END
 
 }
 
 
-void PoseSolver::KneipPnP(const int &a, const int &b, const int &c, const int &d){
+void PoseSolver::KneipPnP(std::vector<int> &idVec
+    ,std::vector<cv::Point3f> &PointsInWorldVec_0
+    ,std::vector<cv::Point3f> &PointsInPixelVec_1)
+{
+    const int a = idVec[0];
+    const int b = idVec[1];
+    const int c = idVec[2];
+    const int d = idVec[3];
     Eigen::Vector3f f1, f2, f3, p1, p2, p3;
     Eigen::Vector3f tx, ty, tz;
     p1 << PointsInPixelVec_1[a].x, PointsInPixelVec_1[a].y, 1;
@@ -220,7 +278,7 @@ void PoseSolver::KneipPnP(const int &a, const int &b, const int &c, const int &d
                 R(1,0), R(1,1), R(1,2), t(1),
                 R(2,0), R(2,1), R(2,2), t(2),
                 0     , 0     , 0     , 1   ;
-        double error = ReProjectError(d, T12_);
+        double error = ReProjectError(PointsInWorldVec_0,PointsInPixelVec_1, d, T12_);
         if (minError > error){
             minError = error;
             T12 = T12_;
@@ -228,11 +286,28 @@ void PoseSolver::KneipPnP(const int &a, const int &b, const int &c, const int &d
 
     }
     // CHECK POINT
-    std::cout << "[TEST] MIN ERROR IS: " << minError << std::endl;
+    // std::cout << "[TEST] MIN ERROR IS: " << minError << std::endl;
 }
 
 
-double PoseSolver::ReProjectError(const int &i, Eigen::Matrix4f &T)
+double PoseSolver::Average_ReProjectError(std::vector<cv::Point3f>&PointsInWorldVec_0
+    ,std::vector<cv::Point3f>&PointsInPixelVec_1, Eigen::Matrix4f &T)
+{
+    assert(PointsInWorldVec_0.size() == PointsInPixelVec_1.size() );
+    assert(!PointsInWorldVec_0.empty());
+    double total_error = 0;
+    for (size_t i(0); i<PointsInWorldVec_0.size();++i){
+        double error = ReProjectError(PointsInWorldVec_0, PointsInPixelVec_1, i, T);
+        total_error += error;
+        // CHECK_INFO_2("error : ", error);
+    }
+
+    return total_error/PointsInWorldVec_0.size();
+}
+
+
+double PoseSolver::ReProjectError(std::vector<cv::Point3f>&PointsInWorldVec_0
+    ,std::vector<cv::Point3f>&PointsInPixelVec_1,const int &i, Eigen::Matrix4f &T)
 {
     Eigen::Vector3f u4, u4_;
     u4 << PointsInPixelVec_1[i].x, PointsInPixelVec_1[i].y, 1;
@@ -250,7 +325,6 @@ void PoseSolver::Project(Eigen::Vector4f &CamCoord, Eigen::Vector3f & PixelCoord
     PixelCoord(1) = setting.ip.fy * CamCoord(1)/CamCoord(2) + setting.ip.cy;
     PixelCoord(2) = 1;
 }
-
 
 
 void PoseSolver::solve_quartic_roots(Eigen::Matrix<float,5,1> const& factors, std::vector<double> &real_roots)
@@ -324,8 +398,9 @@ void PoseSolver::CheckReProjrctError()
     setting.ip.cx = 0.0;
     setting.ip.cy = 0.0;
     eigenK << setting.ip.fx, 0, setting.ip.cx, 0, setting.ip.fy, setting.ip.cy, 0, 0, 1;
-    KneipPnP(10,20,30,40);
-    double error = ReProjectError(40, T12);
+    std::vector<int> ls={10,20,30,40};
+    KneipPnP(ls,PointsInWorldVec_0,PointsInPixelVec_1);
+    double error = ReProjectError(PointsInWorldVec_0,PointsInPixelVec_1, 40, T12);
     std::cout << "[INFO] ERROR IS: " << error << std::endl;
 
     if (error > 0.01)

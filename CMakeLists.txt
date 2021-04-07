@@ -3,6 +3,8 @@ project( TESTFILES )
 set(CMAKE_CXX_FLAGS "-std=c++11")
 
 set(CMAKE_BUILD_TYPE Release)
+# set(CMAKE_BUILD_TYPE Debug)
+
 
 message(STATUS "[INFO]:opencv is searching....")
 find_package(OpenCV REQUIRED)
@@ -19,6 +21,7 @@ add_library(${PROJECT_NAME} SHARED
     src/EpipolarLine.cc
     src/DepthMap.cc
     src/PoseSolver.cc
+    src/Optimization.cc
 )
 
 target_link_libraries(${PROJECT_NAME}

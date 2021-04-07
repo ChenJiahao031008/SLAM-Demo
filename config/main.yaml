@@ -4,9 +4,9 @@
 Image.left.first   :  "../data/left01.png"
 Image.left.second  :  "../data/left02.png"
 
-Image.ORB_Features : 1
+Image.ORB_Features : 0
 Image.SIFT_Features: 0
-Image.SURF_Features: 0
+Image.SURF_Features: 1
 
 Image.Resize: 0
 Image.Stereo: 1
@@ -18,10 +18,6 @@ Camera.fx: 707.0912
 Camera.fy: 707.0912
 Camera.cx: 601.8873
 Camera.cy: 183.1104
-# Camera.fx: 0.972222
-# Camera.fy: 0.972222
-# Camera.cx: 0.0
-# Camera.cy: 0.0
 
 Camera.k1: 0.0
 Camera.k2: 0.0
@@ -50,4 +46,7 @@ Stereo.MatchingMethod: 0
 Stereo.right.first  :  "../data/right01.png"
 Stereo.right.second :  "../data/right02.png"
 
+# ======================================================
+Opts.maxRansacIter : 1000
+Opts.ErrorTH : 2
 

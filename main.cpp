@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-21 19:17:57
- * @LastEditTime: 2021-04-01 18:28:47
+ * @LastEditTime: 2021-04-07 10:05:02
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /极线可视化/test.cpp
@@ -18,6 +18,7 @@
 #include "Config.h"
 #include "DepthMap.h"
 #include "PoseSolver.h"
+#include "Optimization.h"
 
 using namespace std;
 using namespace cv;
@@ -99,7 +100,7 @@ int main(int argc, char const *argv[])
 
     // cv::Mat imgDepth_0_left = dm.GetDepthMap_0();
     // cv::Mat imgDepth_1_left = dm.GetDepthMap_1();
-    std::cout << "[CHECK] DepthMap Build Finished! " << std::endl;
+    std::cout << "[INFO] DepthMap Build Finished! " << std::endl;
 
     // ========= Part4： 位姿估计，确定相机相对运动及坐标 ============= //
     std::vector<cv::Point3f> PixelPoint3fVec_0, PixelPoint3fVec_1;
@@ -108,15 +109,17 @@ int main(int argc, char const *argv[])
         cv::Point2f tmpPoint_1 = Kp2[matches[i].trainIdx].pt;
         double depth_0 = dm.GetDepth(tmpPoint_0,0);
         double depth_1 = dm.GetDepth(tmpPoint_1,1);
+        if (depth_0<=0 || depth_1 <=0) continue;
         PixelPoint3fVec_0.emplace_back(tmpPoint_0.x, tmpPoint_0.y, depth_0);
         PixelPoint3fVec_1.emplace_back(tmpPoint_1.x, tmpPoint_1.y, depth_1);
     }
 
-    PoseSolver ps(PixelPoint3fVec_0, PixelPoint3fVec_1, conf);
+    PoseSolver ps(PixelPoint3fVec_0, PixelPoint3fVec_1, conf, 1);
     ps.ComputePnP();
 
 
     EpipolarLine el;
+    // Optimization opt;
 
 
 
