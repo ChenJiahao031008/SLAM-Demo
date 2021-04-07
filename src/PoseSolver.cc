@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-28 17:41:34
- * @LastEditTime: 2021-04-07 10:21:54
+ * @LastEditTime: 2021-04-07 15:39:34
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /极线可视化/src/PoseSolver.cc
@@ -128,7 +128,10 @@ void PoseSolver::ComputePnP()
     double Interior_Error = Average_ReProjectError(PointsInWorldVec_0, PointsInPixelVec_1, T12_ransac);
     CHECK_INFO_2("average error: ",Interior_Error);
 
-    // CHECK POINT END
+    CHECK_INFO("Optimization: ");
+    opts.BA_OptimizePose(PointsInWorldVec_0, PointsInPixelVec_1, T12_ransac);
+    double Optimization_Error = Average_ReProjectError(PointsInWorldVec_0, PointsInPixelVec_1, T12_ransac);
+    CHECK_INFO_2("Optimization error: ",Optimization_Error);
 
 }
 
