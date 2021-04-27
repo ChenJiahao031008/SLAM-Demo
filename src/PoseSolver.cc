@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-28 17:41:34
- * @LastEditTime: 2021-04-07 15:39:34
+ * @LastEditTime: 2021-04-11 15:27:32
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /极线可视化/src/PoseSolver.cc
@@ -15,6 +15,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <cmath>
 #include <cassert>
+#include <chrono>
 
 // #include <opencv2/core/eigen.hpp>
 #include <Eigen/Dense>
@@ -101,6 +102,7 @@ void PoseSolver::ComputePnP()
     // CheckReProjrctError();
     // std::vector<int> ls={10,20,30,40};
     // KneipPnP(ls,PointsInWorldVec_0,PointsInPixelVec_1);
+
     Optimization opts(setting);
     std::vector<int> Interior;
     Interior.resize(PointsInWorldVec_0.size());
@@ -135,10 +137,37 @@ void PoseSolver::ComputePnP()
 
 }
 
+void PoseSolver::EPnP_OpenCV(std::vector<int> &idVec, std::vector<cv::Point3f> &PointsInWorldVec_0, std::vector<cv::Point3f> &PointsInPixelVec_1)
+{
+    std::vector<cv::Point2f> pts_2d;
+    std::vector<cv::Point3f> pts_3d(PointsInWorldVec_0);
+    for (auto &pt : PointsInPixelVec_1)
+        pts_2d.emplace_back(pt.x, pt.y);
+    cv::Mat r,t,R;
+    cv::solvePnP(pts_3d, pts_2d,setting.ip.K, cv::Mat(),r,t,false,cv::SOLVEPNP_EPNP);
+    cv::Rodrigues(r,R);
+    R = R.t();
+    t = -R * t;
+    T12(0, 0) = R.at<float>(0, 0);
+    T12(0, 1) = R.at<float>(0, 1);
+    T12(0, 2) = R.at<float>(0, 2);
+    T12(1, 0) = R.at<float>(1, 0);
+    T12(1, 1) = R.at<float>(1, 1);
+    T12(1, 2) = R.at<float>(1, 2);
+    T12(2, 0) = R.at<float>(2, 0);
+    T12(2, 1) = R.at<float>(2, 1);
+    T12(2, 2) = R.at<float>(2, 2);
+    T12(0, 3) = t.at<float>(0, 0);
+    T12(1, 3) = t.at<float>(1, 0);
+    T12(2, 3) = t.at<float>(2, 0);
+    T12(3, 0) = 0.0;
+    T12(3, 1) = 0.0;
+    T12(3, 2) = 0.0;
+    T12(3, 3) = 1.0;
+}
 
-void PoseSolver::KneipPnP(std::vector<int> &idVec
-    ,std::vector<cv::Point3f> &PointsInWorldVec_0
-    ,std::vector<cv::Point3f> &PointsInPixelVec_1)
+void
+PoseSolver::KneipPnP(std::vector<int> &idVec, std::vector<cv::Point3f> &PointsInWorldVec_0,std::vector<cv::Point3f> &PointsInPixelVec_1)
 {
     const int a = idVec[0];
     const int b = idVec[1];
@@ -380,33 +409,66 @@ void PoseSolver::solve_quartic_roots(Eigen::Matrix<float,5,1> const& factors, st
 void PoseSolver::CheckReProjrctError()
 {
     // 使用检查机制会破坏原有的数据，请仅在检查时才能使用
-    cv::Point3f p1(-2.57094,-0.217018, 6.05338);
+    PointsInWorldVec_0.clear();
+    PointsInWorldVec_0.resize(4);
+    PointsInPixelVec_1.clear();
+    PointsInPixelVec_1.resize(4);
+    cv::Point3f p1(-2.57094, -0.217018, 6.05338);
     cv::Point3f p2(-0.803123, 0.251818, 6.98383);
     cv::Point3f p3(2.05584, -0.607918, 7.52573);
     cv::Point3f p4(-0.62611418962478638, -0.80525958538055419, 6.7783102989196777);
-    PointsInWorldVec_0[10] = p1;
-    PointsInWorldVec_0[20] = p2;
-    PointsInWorldVec_0[30] = p3;
-    PointsInWorldVec_0[40] = p4;
+    PointsInWorldVec_0[0] = p1;
+    PointsInWorldVec_0[1] = p2;
+    PointsInWorldVec_0[2] = p3;
+    PointsInWorldVec_0[3] = p4;
     cv::Point3f uv1(-0.441758,-0.185523,1);
     cv::Point3f uv2(-0.135753,-0.0920593,1);
     cv::Point3f uv3(0.243795,-0.192743,1);
     cv::Point3f uv4(-0.11282696574926376,-0.24667978286743164,1);
-    PointsInPixelVec_1[10] = uv1;
-    PointsInPixelVec_1[20] = uv2;
-    PointsInPixelVec_1[30] = uv3;
-    PointsInPixelVec_1[40] = uv4;
+    PointsInPixelVec_1[0] = uv1;
+    PointsInPixelVec_1[1] = uv2;
+    PointsInPixelVec_1[2] = uv3;
+    PointsInPixelVec_1[3] = uv4;
     setting.ip.fx = 0.972222;
     setting.ip.fy = 0.972222;
     setting.ip.cx = 0.0;
     setting.ip.cy = 0.0;
+    setting.ip.K.at<float>(0, 0) = setting.ip.fx;
+    setting.ip.K.at<float>(1, 1) = setting.ip.fy;
+    setting.ip.K.at<float>(0, 2) = setting.ip.cx;
+    setting.ip.K.at<float>(1, 2) = setting.ip.cy;
     eigenK << setting.ip.fx, 0, setting.ip.cx, 0, setting.ip.fy, setting.ip.cy, 0, 0, 1;
-    std::vector<int> ls={10,20,30,40};
+    std::vector<int> ls={0,1,2,3};
+
+    std::cout << "KneipPnP : " << std::endl;
+
+    std::chrono::steady_clock::time_point t0 = std::chrono::steady_clock::now();
     KneipPnP(ls,PointsInWorldVec_0,PointsInPixelVec_1);
-    double error = ReProjectError(PointsInWorldVec_0,PointsInPixelVec_1, 40, T12);
+    std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
+    double t01 = std::chrono::duration_cast<std::chrono::duration<double>>(t1 - t0).count();
+
+    double error = Average_ReProjectError(PointsInWorldVec_0,PointsInPixelVec_1, T12);
     std::cout << "[INFO] ERROR IS: " << error << std::endl;
+    std::cout << "KneipPnP耗时： " << t01 << std::endl;
 
     if (error > 0.01)
+        std::cerr << "[ERRO] PNP ERROR!" << std::endl;
+    else
+        std::cerr << "[INFO] PNP OK." << std::endl;
+
+    std::cout << "==================================================" << std::endl;
+    std::cout << "EPNP : " << std::endl;
+
+    std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
+    EPnP_OpenCV(ls, PointsInWorldVec_0, PointsInPixelVec_1);
+    std::chrono::steady_clock::time_point t3 = std::chrono::steady_clock::now();
+    double t23 = std::chrono::duration_cast<std::chrono::duration<double>>(t3 - t2).count();
+
+    double error2 = Average_ReProjectError(PointsInWorldVec_0, PointsInPixelVec_1, T12);
+    std::cout << "[INFO] ERROR IS: " << error2 << std::endl;
+    std::cout << "EPnP耗时： " << t23 << std::endl;
+
+    if (error2 > 0.01)
         std::cerr << "[ERRO] PNP ERROR!" << std::endl;
     else
         std::cerr << "[INFO] PNP OK." << std::endl;

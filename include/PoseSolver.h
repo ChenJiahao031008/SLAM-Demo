@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-28 17:41:54
- * @LastEditTime: 2021-04-07 09:07:19
+ * @LastEditTime: 2021-04-11 14:30:23
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /极线可视化/include/PoseSolver.h
@@ -50,7 +50,9 @@ public:
 
     void KneipPnP(std::vector<int> &idVec, std::vector<cv::Point3f> &PointsInWorldVec_0, std::vector<cv::Point3f> &PointsInPixelVec_1);
 
-    void solve_quartic_roots(Eigen::Matrix<float,5,1> const& factors, std::vector<double> &real_roots);
+    void EPnP_OpenCV(std::vector<int> &idVec, std::vector<cv::Point3f> &PointsInWorldVec_0, std::vector<cv::Point3f> &PointsInPixelVec_1);
+
+    void solve_quartic_roots(Eigen::Matrix<float, 5, 1> const &factors, std::vector<double> &real_roots);
 
     double ReProjectError(std::vector<cv::Point3f>&PointsInWorldVec_0,std::vector<cv::Point3f>&PointsInPixelVec_1,const int &i, Eigen::Matrix4f &T);
 
