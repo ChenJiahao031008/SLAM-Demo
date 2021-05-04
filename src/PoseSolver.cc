@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-28 17:41:34
- * @LastEditTime: 2021-04-11 15:27:32
+ * @LastEditTime: 2021-05-04 15:53:08
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /极线可视化/src/PoseSolver.cc
@@ -26,13 +26,12 @@
 #include "PoseSolver.h"
 #include "Optimization.h"
 
-#define DEBUG
+// #define DEBUG
 #ifdef DEBUG
     #define CHECK_INFO(x) std::cout << "[DEBUG] " << x << std::endl;
     #define CHECK_INFO_2(x,y) std::cout << "[DEBUG] " << x << y << std::endl;
 #else
-    #define CHECK_INFO(x) /\
-    /std::cout << x << std::endl;
+    #define CHECK_INFO(x) //std::cout << x << std::endl;
     #define CHECK_INFO_2(x,y) //std::cout << "[DEBUG] " << x << y << std::endl;
 #endif
 
@@ -133,8 +132,8 @@ void PoseSolver::ComputePnP()
     CHECK_INFO("Optimization: ");
     opts.BA_OptimizePose(PointsInWorldVec_0, PointsInPixelVec_1, T12_ransac);
     double Optimization_Error = Average_ReProjectError(PointsInWorldVec_0, PointsInPixelVec_1, T12_ransac);
-    CHECK_INFO_2("Optimization error: ",Optimization_Error);
-
+    CHECK_INFO_2("Optimization error: ", Optimization_Error);
+    std::cout << "[INFO] Optimization Error: " << Optimization_Error << std::endl;
 }
 
 void PoseSolver::EPnP_OpenCV(std::vector<int> &idVec, std::vector<cv::Point3f> &PointsInWorldVec_0, std::vector<cv::Point3f> &PointsInPixelVec_1)

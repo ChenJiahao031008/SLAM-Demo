@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-26 14:55:09
- * @LastEditTime: 2021-04-01 18:29:25
+ * @LastEditTime: 2021-05-04 14:40:05
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /极线可视化/include/DepthMap.h
@@ -27,6 +27,8 @@ public:
     DepthMap(cv::Mat &img_0, cv::Mat &img_1);
 
     void StereoDepthBuilder(cv::Mat &img_0, cv::Mat& img_1, Config& config);
+
+    void RGBDDepthBuilder(cv::Mat &depth_0, cv::Mat &depth_1, Config &config);
 
     void insertDepth32f(cv::Mat& depth);
 

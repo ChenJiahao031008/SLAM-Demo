@@ -1,0 +1,50 @@
+%YAML:1.0
+
+# image intput
+## KITTI/TUM/OTHER
+Image.Dataset   :  "TUM"
+Image.Path      :  "/home/chen/Datasets/TUM/Robot_SLAM/rgbd_dataset_freiburg2_pioneer_slam/"
+Image.Mode      :  "RGBD"
+
+Image.ORB_Features : 1
+Image.SIFT_Features: 0
+Image.SURF_Features: 0
+
+Image.Resize: 0
+
+
+# ======================================================
+
+# Camera calibration and distortion parameters (OpenCV)
+Camera.fx: 520.908620
+Camera.fy: 521.007327
+Camera.cx: 325.141442
+Camera.cy: 249.701764
+
+Camera.k1: 0.231222
+Camera.k2: -0.784899
+Camera.p1: -0.003257
+Camera.p2: -0.000105
+
+Camera.width : 640
+Camera.height: 480
+
+# Camera frames per second
+Camera.fps: 30.0
+
+# Close/Far threshold. Baseline times.
+ThDepth: 40
+
+# ======================================================
+
+# stereo baseline times fx
+Stereo.bf: 0
+# the Th of depth is 30m
+Stereo.th: 0
+# 0: SGBM
+Stereo.MatchingMethod: 0
+
+# ======================================================
+Opts.maxRansacIter : 800
+Opts.ErrorTH : 2
+

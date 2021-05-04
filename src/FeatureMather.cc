@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-26 09:03:16
- * @LastEditTime: 2021-03-28 17:11:29
+ * @LastEditTime: 2021-05-04 16:00:51
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /极线可视化/src/FeatureMather.cc
@@ -17,6 +17,15 @@
 #include <opencv2/xfeatures2d.hpp>
 #include "FeatureMather.h"
 #include "Config.h"
+
+// #define DEBUG
+#ifdef DEBUG
+#define CHECK_INFO(x) std::cout << "[DEBUG] " << x << std::endl;
+#define CHECK_INFO_2(x, y) std::cout << "[DEBUG] " << x << y << std::endl;
+#else
+#define CHECK_INFO(x)      //std::cout << x << std::endl;
+#define CHECK_INFO_2(x, y) //std::cout << "[DEBUG] " << x << y << std::endl;
+#endif
 
 FeatureMatcher::FeatureMatcher(Config::AppSettings conf, cv::Mat &Img_0, cv::Mat &Img_1)
     : Frame_0(Img_0),Frame_1(Img_1), app(conf)
@@ -68,27 +77,27 @@ void FeatureMatcher::SurfExtract( std::vector<cv::DMatch> &matches,
     detector->detect ( Frame_1, Kp2 );
     std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
     double t01= std::chrono::duration_cast<std::chrono::duration<double> >(t1 - t0).count();
-    std::cout << "SURF 关键点检测耗时： "<< t01 <<std::endl;
+    CHECK_INFO_2("SURF 关键点检测耗时： ", t01);
 
     std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
     descriptor->compute ( Frame_0, Kp1, Des1 );
     descriptor->compute ( Frame_1, Kp2, Des2 );
     std::chrono::steady_clock::time_point t3 = std::chrono::steady_clock::now();
     double t23= std::chrono::duration_cast<std::chrono::duration<double> >(t3 - t2).count();
-    std::cout << "SURF 描述子检测耗时： "<< t23 <<std:: endl;
+    CHECK_INFO_2("SURF 描述子检测耗时： ", t23);
 
     std::chrono::steady_clock::time_point t4 = std::chrono::steady_clock::now();
     matcher.match( Des1, Des2, matches );
     std::chrono::steady_clock::time_point t5 = std::chrono::steady_clock::now();
     double t45= std::chrono::duration_cast<std::chrono::duration<double> >(t5 - t4).count();
-    std::cout << "SURF 匹配检测耗时： "<< t23 << std::endl;
+    CHECK_INFO_2("SURF 匹配检测耗时： ", t23 );
 
-    std::cout << "优化前匹配数量： "<< matches.size() << std::endl;
+    CHECK_INFO_2("优化前匹配数量： ", matches.size() );
     OptimizedDec(matches, Des1.rows, 0.01, 3);
-    cv::Mat ShowMatches;
-    cv::drawMatches ( Frame_0, Kp1, Frame_1, Kp2, matches, ShowMatches, cv::Scalar(0,255,0),cv::Scalar(0,255,0) );
-    cv::imwrite( "../result/SURF.png", ShowMatches);
-    std::cout << "优化后匹配数量： "<< matches.size() << std::endl;
+    // cv::Mat ShowMatches;
+    // cv::drawMatches ( Frame_0, Kp1, Frame_1, Kp2, matches, ShowMatches, cv::Scalar(0,255,0),cv::Scalar(0,255,0) );
+    // cv::imwrite( "../result/SURF.png", ShowMatches);
+    CHECK_INFO_2("优化后匹配数量： ", matches.size() );
     // cv::imshow ( "SURF: ShowMatches", ShowMatches );
     // cv::waitKey(0);
 
@@ -107,27 +116,28 @@ void FeatureMatcher::SiftExtract( std::vector<cv::DMatch> &matches,
     detector->detect ( Frame_1, Kp2 );
     std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
     double t01= std::chrono::duration_cast<std::chrono::duration<double> >(t1 - t0).count();
-    std::cout << "SIFT 关键点检测耗时： "<< t01 << std::endl;
+    CHECK_INFO_2("SIFT 关键点检测耗时： ", t01 );
 
     std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
     descriptor->compute ( Frame_0, Kp1, Des1 );
     descriptor->compute ( Frame_1, Kp2, Des2 );
     std::chrono::steady_clock::time_point t3 = std::chrono::steady_clock::now();
     double t23= std::chrono::duration_cast<std::chrono::duration<double> >(t3 - t2).count();
-    std::cout << "SIFT 描述子检测耗时： "<< t23 << std::endl;
+    CHECK_INFO_2("SIFT 描述子检测耗时： ", t23 );
 
     std::chrono::steady_clock::time_point t4 = std::chrono::steady_clock::now();
     matcher.match( Des1, Des2, matches );
     std::chrono::steady_clock::time_point t5 = std::chrono::steady_clock::now();
     double t45= std::chrono::duration_cast<std::chrono::duration<double> >(t5 - t4).count();
-    std::cout << "SIFT 匹配检测耗时： "<< t23 << std::endl;
+    CHECK_INFO_2("SIFT 匹配检测耗时： ", t23 );
 
-    std::cout << "优化前匹配数量： "<< matches.size() << std::endl;
+    CHECK_INFO_2("优化前匹配数量： ", matches.size() );
     OptimizedDec(matches, Des1.rows, 100,2);
-    std::cout << "优化后匹配数量： "<< matches.size() << std::endl;
-    cv::Mat ShowMatches;
-    cv::drawMatches ( Frame_0, Kp1, Frame_1, Kp2, matches, ShowMatches, cv::Scalar(0,255,0),cv::Scalar(0,255,0) );
-    cv::imwrite( "../result/SIFT.png", ShowMatches);
+    CHECK_INFO_2("优化后匹配数量： ", matches.size() );
+
+    // cv::Mat ShowMatches;
+    // cv::drawMatches ( Frame_0, Kp1, Frame_1, Kp2, matches, ShowMatches, cv::Scalar(0,255,0),cv::Scalar(0,255,0) );
+    // cv::imwrite( "../result/SIFT.png", ShowMatches);
     // cv::imshow ( "SIFT: ShowMatches", ShowMatches );
     // cv::waitKey(0);
 
@@ -146,28 +156,29 @@ void FeatureMatcher::OrbExtract( std::vector<cv::DMatch> &matches,
 
     std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
     double t01= std::chrono::duration_cast<std::chrono::duration<double> >(t1 - t0).count();
-    std::cout << "ORB 关键点检测耗时： "<< t01 << std::endl;
+    CHECK_INFO_2("ORB 关键点检测耗时： ", t01 );
 
     std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
     descriptor->compute ( Frame_0, Kp1, Des1 );
     descriptor->compute ( Frame_1, Kp2, Des2 );
     std::chrono::steady_clock::time_point t3 = std::chrono::steady_clock::now();
     double t23= std::chrono::duration_cast<std::chrono::duration<double> >(t3 - t2).count();
-    std::cout << "ORB 描述子检测耗时： "<< t23 << std::endl;
+    CHECK_INFO_2("ORB 描述子检测耗时： ", t23 );
 
     std::chrono::steady_clock::time_point t4 = std::chrono::steady_clock::now();
     matcher->match( Des1, Des2, matches );
     std::chrono::steady_clock::time_point t5 = std::chrono::steady_clock::now();
     double t45= std::chrono::duration_cast<std::chrono::duration<double> >(t5 - t4).count();
-    std::cout << "ORB 匹配检测耗时： "<< t23 << std::endl;
+    CHECK_INFO_2("ORB 匹配检测耗时： ", t23 );
 
-    std::cout << "优化前匹配数量： "<< matches.size() << std::endl;
+    CHECK_INFO_2("优化前匹配数量： ", matches.size() );
     OptimizedDec(matches, Des1.rows, 30.0, 2);
-    std::cout << "优化后匹配数量： "<< matches.size() << std::endl;
-    cv::Mat ShowMatches;
-    cv::drawMatches ( Frame_0, Kp1, Frame_1, Kp2, matches, ShowMatches, cv::Scalar(0,255,0),cv::Scalar(0,255,0) );
-    cv::imwrite( "../result/ORB.png", ShowMatches);
+    CHECK_INFO_2("优化后匹配数量： ", matches.size() );
+    // cv::Mat ShowMatches;
+    // cv::drawMatches ( Frame_0, Kp1, Frame_1, Kp2, matches, ShowMatches, cv::Scalar(0,255,0),cv::Scalar(0,255,0) );
+    // cv::imwrite( "../result/ORB.png", ShowMatches);
     // cv::imshow ( "ORB: ShowMatches", ShowMatches );
+
     // cv::waitKey(0);
 }
 

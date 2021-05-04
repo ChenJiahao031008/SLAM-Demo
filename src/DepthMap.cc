@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-26 14:55:20
- * @LastEditTime: 2021-04-01 19:34:43
+ * @LastEditTime: 2021-05-04 16:04:55
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /极线可视化/src/DepthMap.cc
@@ -22,6 +22,19 @@ cv::Mat Depth_tmp;
 DepthMap::DepthMap(cv::Mat &img_0, cv::Mat &img_1)
 : Frame_0_left(img_0),Frame_1_left(img_1)
 {
+}
+
+void DepthMap::RGBDDepthBuilder(cv::Mat &depth_0, cv::Mat &depth_1, Config &config)
+{
+    depth_0.convertTo(DepthImage_0_left, CV_32FC1);
+    depth_1.convertTo(DepthImage_1_left, CV_32FC1);
+
+    // Depth_tmp = DepthImage_0_left.clone();
+    // cvNamedWindow("depth8U");
+    // cvSetMouseCallback("depth8U", Mouse_Callback, 0);
+    // cv::imshow("depth8U", depth_0);
+    // cv::waitKey(0);
+    // cv::imwrite("../result/depth.png", depth_0);
 }
 
 void DepthMap::StereoDepthBuilder(cv::Mat &img_0, cv::Mat& img_1, Config &config)

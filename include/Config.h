@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-26 11:25:51
- * @LastEditTime: 2021-04-06 21:51:27
+ * @LastEditTime: 2021-05-03 21:11:28
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /极线可视化/include/config.h
@@ -22,21 +22,17 @@ class Config
 public:
     struct AppSettings
     {
-        std::string img_0;
-        std::string img_1;
+        std::string img_dataset;
+        std::string img_path;
+        std::string Mode;
         int ORB_Features;
         int SIFT_Features;
         int SURF_Features;
         int Resize;
-        int Stereo;
     };
 
     struct StereoSetting
     {
-        std::string img_0_left;
-        std::string img_1_left;
-        std::string img_0_right;
-        std::string img_1_right;
         int MatchingMethod;
         float baseline;
         float DepthTH;
@@ -73,26 +69,24 @@ public:
         InternalParametersInit();
         OptimizationConfigInit();
 
-        if (app.Stereo)
+        if (app.Mode == "Stereo")
             StereoSettingInit();
 
     };
 
     void AppSettingsInit(){
-        app.img_0 = static_cast<std::string>(SettingsFile["Image.left.first"]);
-        app.img_1 = static_cast<std::string>(SettingsFile["Image.left.second"]);
-        app.ORB_Features  = SettingsFile["Image.ORB_Features"];
+        app.img_dataset = static_cast<std::string>(SettingsFile["Image.Dataset"]);
+        app.img_path = static_cast<std::string>(SettingsFile["Image.Path"]);
+        app.Mode = static_cast<std::string>(SettingsFile["Image.Mode"]);
+        app.ORB_Features = SettingsFile["Image.ORB_Features"];
         app.SIFT_Features = SettingsFile["Image.SIFT_Features"];
         app.SURF_Features = SettingsFile["Image.SURF_Features"];
         app.Resize = SettingsFile["Image.Resize"];
-        app.Stereo = SettingsFile["Image.Stereo"];
     };
 
     void StereoSettingInit(){
         ss.baseline = SettingsFile["Stereo.bf"];
         ss.DepthTH = SettingsFile["Stereo.th"];
-        ss.img_0_right = static_cast<std::string>(SettingsFile["Stereo.right.first"]);
-        ss.img_1_right = static_cast<std::string>(SettingsFile["Stereo.right.second"]);
         ss.MatchingMethod = SettingsFile["Stereo.MatchingMethod"];
     };
 

@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-02 10:37:48
- * @LastEditTime: 2021-04-07 15:45:54
+ * @LastEditTime: 2021-05-04 14:43:34
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /SLAM-Demo/src/Optimization.cc
@@ -29,19 +29,18 @@
 #include "Optimization.h"
 #include "PoseSolver.h"
 
-#define DEBUG
+// #define DEBUG
 #ifdef DEBUG
     #define CHECK_INFO(x) std::cout << "[DEBUG] " << x << std::endl;
     #define CHECK_INFO_2(x,y) std::cout << "[DEBUG] " << x << y << std::endl;
 #else
-    #define CHECK_INFO(x) /\
-    /std::cout << x << std::endl;
+    #define CHECK_INFO(x) //std::cout << x << std::endl;
     #define CHECK_INFO_2(x,y) //std::cout << "[DEBUG] " << x << y << std::endl;
 #endif
 
 Optimization::Optimization(Config &config): setting(config)
 {
-    std::cout << "[INFO] Optimization Start." << std::endl;
+    // std::cout << "[INFO] Optimization Start." << std::endl;
 }
 
 Optimization::~Optimization()
@@ -187,12 +186,15 @@ void Optimization::BA_OptimizePose(std::vector<cv::Point3f> &points_3d
 
 
     std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
-    optimizer.setVerbose ( true ); // 输出显示
+    optimizer.setVerbose ( false ); // 输出显示
     optimizer.initializeOptimization();
     optimizer.optimize ( 100 );
     std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
     std::chrono::duration<double> time_used = std::chrono::duration_cast<std::chrono::duration<double>> ( t2-t1 );
-    std::cout<< "[INFO] Optimization costs time: "<<time_used.count() <<" seconds."<<std::endl;
+
+    #if DEBUG
+        std::cout<< "[INFO] Optimization costs time: "<<time_used.count() <<" seconds."<<std::endl;
+    #endif
 
     // Eigen::Isometry3d 为变换矩阵
     Eigen::Isometry3d T = Eigen::Isometry3d( pose->estimate() );

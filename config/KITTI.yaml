@@ -1,15 +1,17 @@
 %YAML:1.0
 
 # image intput
-Image.left.first   :  "../data/left01.png"
-Image.left.second  :  "../data/left02.png"
+## KITTI/TUM/OTHER
+Image.Dataset   :  "KITTI"
+Image.Path      :  "../data/"
+Image.Mode      :  "Stereo"
 
-Image.ORB_Features : 0
+Image.ORB_Features : 1
 Image.SIFT_Features: 0
-Image.SURF_Features: 1
+Image.SURF_Features: 0
 
 Image.Resize: 0
-Image.Stereo: 1
+
 
 # ======================================================
 
@@ -39,14 +41,10 @@ ThDepth: 40
 Stereo.bf: 379.8145
 # the Th of depth is 30m
 Stereo.th: 30000
-
 # 0: SGBM
 Stereo.MatchingMethod: 0
 
-Stereo.right.first  :  "../data/right01.png"
-Stereo.right.second :  "../data/right02.png"
-
 # ======================================================
-Opts.maxRansacIter : 1000
+Opts.maxRansacIter : 800
 Opts.ErrorTH : 2
 
