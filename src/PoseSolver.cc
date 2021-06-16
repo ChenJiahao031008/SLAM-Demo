@@ -98,7 +98,7 @@ void PoseSolver::Unproject(const int &PoseId, const Eigen::Matrix4f &T)
 
 void PoseSolver::ComputePnP()
 {
-    // CheckReProjrctError();
+
     // std::vector<int> ls={10,20,30,40};
     // KneipPnP(ls,PointsInWorldVec_0,PointsInPixelVec_1);
 
@@ -122,6 +122,8 @@ void PoseSolver::ComputePnP()
         }
     }
 
+    // CheckReProjrctError();
+
     CHECK_INFO("After: ");
     PointsInWorldVec_0 = tmp_PW0;
     PointsInPixelVec_1 = tmp_PP1;
@@ -133,7 +135,9 @@ void PoseSolver::ComputePnP()
     opts.BA_OptimizePose(PointsInWorldVec_0, PointsInPixelVec_1, T12_ransac);
     double Optimization_Error = Average_ReProjectError(PointsInWorldVec_0, PointsInPixelVec_1, T12_ransac);
     CHECK_INFO_2("Optimization error: ", Optimization_Error);
-    std::cout << "[INFO] Optimization Error: " << Optimization_Error << std::endl;
+    #if DEBUG
+        std::cout << "[INFO] Optimization Error: " << Optimization_Error << std::endl;
+    #endif
 }
 
 void PoseSolver::EPnP_OpenCV(std::vector<int> &idVec, std::vector<cv::Point3f> &PointsInWorldVec_0, std::vector<cv::Point3f> &PointsInPixelVec_1)
@@ -164,6 +168,177 @@ void PoseSolver::EPnP_OpenCV(std::vector<int> &idVec, std::vector<cv::Point3f> &
     T12(3, 2) = 0.0;
     T12(3, 3) = 1.0;
 }
+
+
+void PoseSolver::YuPnP(std::vector<int> &idVec, std::vector<cv::Point3f> &PointsInWorldVec_0,std::vector<cv::Point3f> &PointsInPixelVec_1)
+{
+
+    const int a = idVec[0];
+    const int b = idVec[1];
+    const int c = idVec[2];
+    const int d = idVec[3];
+
+    Eigen::Vector3f nx, ny, nz, P1, P2, P3;
+
+    P1 << PointsInWorldVec_0[a].x, PointsInWorldVec_0[a].y, PointsInWorldVec_0[a].z;
+    P2 << PointsInWorldVec_0[b].x, PointsInWorldVec_0[b].y, PointsInWorldVec_0[b].z;
+    P3 << PointsInWorldVec_0[c].x, PointsInWorldVec_0[c].y, PointsInWorldVec_0[c].z;
+
+    double x1, x2, x3, y1, y2, y3;
+    Eigen::Vector3f p1,p2,p3;
+    p1 << PointsInPixelVec_1[a].x, PointsInPixelVec_1[a].y, 1;
+    p2 << PointsInPixelVec_1[b].x, PointsInPixelVec_1[b].y, 1;
+    p3 << PointsInPixelVec_1[c].x, PointsInPixelVec_1[c].y, 1;
+    p1 = eigenK.inverse() * p1;
+    p2 = eigenK.inverse() * p2;
+    p3 = eigenK.inverse() * p3;
+
+    x1 = p1[0];
+    y1 = p1[1];
+    x2 = p2[0];
+    y2 = p2[1];
+    x3 = p3[0];
+    y3 = p3[1];
+
+    Eigen::Vector3f P12(P2-P1);
+    Eigen::Vector3f P13(P3-P1);
+
+    nx = P12.normalized();
+    nz = nx.cross(P13).normalized();
+    ny = nz.cross(nx);
+    // std::cout << ny << std::endl;
+
+    Eigen::Matrix3f N;
+    N.row(0) = nx.transpose();
+    N.row(1) = ny.transpose();
+    N.row(2) = nz.transpose();
+
+    Eigen::Vector3f P1_, P2_, P3_;
+    P1_ << 0, 0, 0;
+    P2_ = N * P12;
+    P3_ = N * P13;
+    double X2 = P2_(0);
+    double X3 = P3_(0);
+    double Y3 = P3_(1);
+    // std::cout << P2_ << std::endl;
+    // std::cout << P3_ << std::endl;
+
+    // Eigen::Vector3f w1, w2, w3;
+    // w1 << x2, (-x2*X3+x3*X3)*1.0/Y3, y2, (-y2*X3+y3*X3)*1.0/Y3, 0, 0, 1, 0, 0;
+    // w2 << 0, x3, 0, y3, 0, 0, 0, 1, 0;
+    // w3 << (x2-x1)/X2, ((x3-x1)*X2+(x1-x2)*X3)*1.0/(X2*Y3), (y2-y1)/X2,
+    //         ((y3-y1)*X2+(y1-y2)*X3)*1.0/(X2*Y3), x1, y1, 0, 0, 1;
+
+    double w11 = x2;
+    double w21 = (-x2*X3+x3*X3)*1.0/Y3;
+    double w31 = y2;
+    double w41 = (-y2*X3+y3*X3)*1.0/Y3;
+    // double w51 = 0;
+    // double w61 = 0;
+    // double w71 = 1;
+    // double w81 = 0;
+    // double w91 = 0;
+
+    double w12 = 0;
+    double w22 = x3;
+    double w32 = 0;
+    double w42 = y3;
+    // double w52 = 0;
+    // double w62 = 0;
+    // double w72 = 0;
+    // double w82 = 1;
+    // double w92 = 0;
+
+    double w13 = (x2-x1)/X2;
+    double w23 = ((x3-x1)*X2+(x1-x2)*X3)*1.0/(X2*Y3);
+    double w33 = (y2-y1)/X2;
+    double w43 = ((y3-y1)*X2+(y1-y2)*X3)*1.0/(X2*Y3);
+    // double w53 = x1;
+    // double w63 = y1;
+    // double w73 = 0;
+    // double w83 = 0;
+    // double w93 = 1;
+
+    double f0 = w11*w21 + w31*w41;
+    double f1 = w11*w22 + w31*w42 + 1;
+    double f2 = w11*w23 + w21*w13 + w41*w33 + w31*w43;
+    double f3 = w22*w13 + w42*w33;
+    double f4 = w13*w23 + w33*w43;
+
+    double g0 = w21*w21 + w41*w41 - w11*w11 - w31*w31 - 1;
+    double g1 = 2*w21*w22 + 2*w41*w42;
+    double g2 = w22*w22 + w42*w42 + 1;
+    double g3 = 2*w21*w23 + 2*w41*w43 - 2*w11*w13 - 2*w31*w33;
+    double g4 = 2*w22*w23 + 2*w42*w43;
+    double g5 = w23*w23 + w43*w43 - w13*w13 - w33*w33;
+
+    double h0 = g2*f2*f2 + g0*f1*f1 - g1*f0*f1;
+    double h1 = -g4*f0*f1 + 2*g2*f0*f2 - g1*f0*f3 + g3*f1*f1 - g1*f1*f2 + 2*g0*f1*f3;
+    double h2 = -g4*f0*f3 + 2*g2*f0*f4 + g5*f1*f1 - g4*f1*f2 + 2*g3*f1*f3 - g1*f1*f4 + g2*f2*f2 -g1*f2*f3 + g0*f3*f3;
+    double h3 = 2*g5*f1*f3 - g4*f1*f4 - g4*f2*f3 + 2*g2*f2*f4 + g3*f3*f3 - g1*f3*f4;
+    double h4 = g5*f3*f3 - g4*f3*f4 + g2*f4*f4;
+
+    Eigen::Matrix<float,5,1> coff;
+    std::vector<double> real_roots;
+
+    coff << h0, h1, h2, h3, h4;
+    solve_quartic_roots(coff,real_roots);
+    assert(real_roots.size()==4);
+
+    float minError = 9999;
+    for(size_t i=0; i<4; ++i){
+        double a1 = real_roots[i];
+        double a2 = -(f0*a1*a1 + f2*a1 + f4)/(f1*a1 + f3);
+
+        double s1 = a1*w11 + a2*w12 + w13;
+        double s2 = a1*w21 + a2*w22 + w23;
+        double s3 = a1*w31 + a2*w32 + w33;
+        double s4 = a1*w41 + a2*w42 + w43;
+
+        double tz = sqrt(2.0/(s1*s1 + s2*s2 + s3*s3 + s4*s4 + a1*a1 + a2*a2));
+        double tx = x1*tz;
+        double ty = y1*tz;
+        Eigen::Vector3f t_co;
+        t_co << tx, ty, tz;
+
+        double r1 = s1*tz;
+        double r2 = s2*tz;
+        double r4 = s3*tz;
+        double r5 = s4*tz;
+        double r7 = a1*tz;
+        double r8 = a2*tz;
+
+        Eigen::Vector3f r_1, r_2, r_3;
+        r_1 << r1, r4, r7;
+        r_2 << r2, r5, r8;
+        r_3 = r_1.cross(r_2);
+
+        Eigen::Matrix3f R_co;
+        R_co.col(0) = r_1;
+        R_co.col(1) = r_2;
+        R_co.col(2) = r_3;
+
+        Eigen::Matrix3f R = R_co * N;
+        Eigen::Vector3f t = t_co - R*P1;
+
+
+        Eigen::Matrix4f T12_ = Eigen::Matrix4f::Zero();
+        T12_.block(0,0,3,3) = R;
+        T12_.block(0,3,3,1) = t;
+        double error = ReProjectError(PointsInWorldVec_0, PointsInPixelVec_1, d, T12_);
+        if (minError > error){
+            minError = error;
+            T12 = T12_;
+        }
+
+
+    }
+    // std::cout << "[TEST] YuPnP MIN ERROR IS: " << minError << std::endl;
+    // std::cout << "YuPnP T12\n " << T12 << std::endl;
+
+}
+
+
 
 void
 PoseSolver::KneipPnP(std::vector<int> &idVec, std::vector<cv::Point3f> &PointsInWorldVec_0,std::vector<cv::Point3f> &PointsInPixelVec_1)
@@ -228,7 +403,7 @@ PoseSolver::KneipPnP(std::vector<int> &idVec, std::vector<cv::Point3f> &PointsIn
     N.row(0) = nx.transpose();
     N.row(1) = ny.transpose();
     N.row(2) = nz.transpose();
-    P3 = N*(P13);
+    P3 = N * (P13);
 
     double d12 = P12.norm();
     double cos_beta = f1.dot(f2);
@@ -275,8 +450,11 @@ PoseSolver::KneipPnP(std::vector<int> &idVec, std::vector<cv::Point3f> &PointsIn
     solve_quartic_roots(coff,real_roots);
     assert(real_roots.size()==4);
 
+
+
     double minError = 9999;
     for (size_t i=0; i<4; ++i){
+        double a1 = real_roots[i];
         double cot_alpha = (pha_1/pha_2*P3(0)+real_roots[i]*P3(1)-d12*bais)
             /(pha_1/pha_2*real_roots[i]*P3(1)- P3(0)+d12);
 
@@ -304,6 +482,7 @@ PoseSolver::KneipPnP(std::vector<int> &idVec, std::vector<cv::Point3f> &PointsIn
         R.transposeInPlace();
         Eigen::Vector3f t = -R*CamOrientation_1;
 
+
         Eigen::Matrix4f T12_;
         T12_ << R(0,0), R(0,1), R(0,2), t(0),
                 R(1,0), R(1,1), R(1,2), t(1),
@@ -316,15 +495,17 @@ PoseSolver::KneipPnP(std::vector<int> &idVec, std::vector<cv::Point3f> &PointsIn
         }
 
     }
+
     // CHECK POINT
-    // std::cout << "[TEST] MIN ERROR IS: " << minError << std::endl;
+    // std::cout << "[TEST] KneipPnP MIN ERROR IS: " << minError << std::endl;
+    // std::cout << "KneipPnP T12\n" << T12 << std::endl;
 }
 
 
 double PoseSolver::Average_ReProjectError(std::vector<cv::Point3f>&PointsInWorldVec_0
     ,std::vector<cv::Point3f>&PointsInPixelVec_1, Eigen::Matrix4f &T)
 {
-    assert(PointsInWorldVec_0.size() == PointsInPixelVec_1.size() );
+    assert( PointsInWorldVec_0.size() == PointsInPixelVec_1.size() );
     assert(!PointsInWorldVec_0.empty());
     double total_error = 0;
     for (size_t i(0); i<PointsInWorldVec_0.size();++i){
@@ -438,6 +619,26 @@ void PoseSolver::CheckReProjrctError()
     setting.ip.K.at<float>(1, 2) = setting.ip.cy;
     eigenK << setting.ip.fx, 0, setting.ip.cx, 0, setting.ip.fy, setting.ip.cy, 0, 0, 1;
     std::vector<int> ls={0,1,2,3};
+
+
+    std::cout << "YuPnP : " << std::endl;
+
+    std::chrono::steady_clock::time_point t4 = std::chrono::steady_clock::now();
+    YuPnP(ls,PointsInWorldVec_0,PointsInPixelVec_1);
+    std::chrono::steady_clock::time_point t5 = std::chrono::steady_clock::now();
+    double t45 = std::chrono::duration_cast<std::chrono::duration<double>>(t5 - t4).count();
+
+    double error3 = Average_ReProjectError(PointsInWorldVec_0,PointsInPixelVec_1, T12);
+    std::cout << "[INFO] ERROR IS: " << error3 << std::endl;
+    std::cout << "YuPnP耗时： " << t45 << std::endl;
+
+    if (error3 > 0.01)
+        std::cerr << "[ERRO] PNP ERROR!" << std::endl;
+    else
+        std::cerr << "[INFO] PNP OK." << std::endl;
+
+    std::cout << "==================================================" << std::endl;
+
 
     std::cout << "KneipPnP : " << std::endl;
 

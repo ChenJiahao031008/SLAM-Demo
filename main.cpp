@@ -15,7 +15,7 @@
 #include <cassert>
 #include <chrono>
 #include "FeatureMather.h"
-#include "EpipolarLine.h"
+// #include "EpipolarLine.h"
 #include "Config.h"
 #include "DepthMap.h"
 #include "PoseSolver.h"
@@ -48,6 +48,7 @@ int main(int argc, char const *argv[])
         exit(-1);
     }
     Config conf(fsSettings);
+    cout << "[INFO] Loading the parameter files...." << endl;
 
 
     // Step 1_2 读取图像序列地址
@@ -132,7 +133,7 @@ int main(int argc, char const *argv[])
         cv::Mat imgDepth_1_left = dm.GetDepthMap_1();
         // std::cout << "[INFO] DepthMap Build Finished! " << std::endl;
 
-        // Step 2_3_3 计算三维空间点
+        // // Step 2_3_3 计算三维空间点
         std::vector<cv::Point3f> PixelPoint3fVec_0, PixelPoint3fVec_1;
         std::vector<cv::KeyPoint> Kp1_Opt, Kp2_Opt;
         for (size_t i(0); i< matches.size(); ++i){
@@ -157,17 +158,17 @@ int main(int argc, char const *argv[])
             continue;
         }
 
-        // Step 2_4 P3P位姿求解及优化
+        // // Step 2_4 P3P位姿求解及优化
         PoseSolver ps(PixelPoint3fVec_0, PixelPoint3fVec_1, conf, 1);
         ps.ComputePnP();
 
 
-        // EpipolarLine el;
+        // // EpipolarLine el;
         waitKey(1);
 
-        std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
-        std::chrono::duration<double> time_used = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
-        std::cout << "[INFO] costs time: " << time_used.count() << " seconds." << std::endl;
+        // std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
+        // std::chrono::duration<double> time_used = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
+        // std::cout << "[INFO] costs time: " << time_used.count() << " seconds." << std::endl;
     }
 
     return 0;

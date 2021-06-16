@@ -52,6 +52,8 @@ public:
 
     void EPnP_OpenCV(std::vector<int> &idVec, std::vector<cv::Point3f> &PointsInWorldVec_0, std::vector<cv::Point3f> &PointsInPixelVec_1);
 
+    void YuPnP(std::vector<int> &idVec, std::vector<cv::Point3f> &PointsInWorldVec_0,std::vector<cv::Point3f> &PointsInPixelVec_1);
+
     void solve_quartic_roots(Eigen::Matrix<float, 5, 1> const &factors, std::vector<double> &real_roots);
 
     double ReProjectError(std::vector<cv::Point3f>&PointsInWorldVec_0,std::vector<cv::Point3f>&PointsInPixelVec_1,const int &i, Eigen::Matrix4f &T);

@@ -82,7 +82,9 @@ void Optimization::Kneip_Ransac(std::vector<cv::Point3f> &PointsInWorldVec_0
         }
         assert(idVec.size()==4);
 
-        ps.KneipPnP(idVec, PointsInWorldVec_0, PointsInPixelVec_1);
+
+        ps.YuPnP(idVec, PointsInWorldVec_0, PointsInPixelVec_1);
+        // ps.KneipPnP(idVec, PointsInWorldVec_0, PointsInPixelVec_1);
         Eigen::Matrix4f T12 = ps.GetT12();
         PoseVec.emplace_back(T12);
 
