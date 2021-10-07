@@ -3,7 +3,7 @@
 # image intput
 ## KITTI/TUM/OTHER
 Image.Dataset   :  "KITTI"
-Image.Path      :  "../data/"
+Image.Path      :  "/home/chen/catkin_ws/src/SLAM-Demo/data/"
 Image.Mode      :  "Stereo"
 
 Image.ORB_Features : 1
