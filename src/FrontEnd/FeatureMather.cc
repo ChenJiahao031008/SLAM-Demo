@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-26 09:03:16
- * @LastEditTime: 2021-05-04 16:00:51
+ * @LastEditTime: 2021-10-07 19:44:27
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /极线可视化/src/FeatureMather.cc
@@ -16,7 +16,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/xfeatures2d.hpp>
 #include "FeatureMather.h"
-#include "Config.h"
+#include "DataPretreat/Config.h"
 
 // #define DEBUG
 #ifdef DEBUG

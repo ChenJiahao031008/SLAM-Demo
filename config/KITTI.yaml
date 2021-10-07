@@ -45,6 +45,6 @@ Stereo.th: 30000
 Stereo.MatchingMethod: 0
 
 # ======================================================
-Opts.maxRansacIter : 800
+Opts.maxRansacIter : 200
 Opts.ErrorTH : 2
 

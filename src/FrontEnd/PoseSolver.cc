@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-28 17:41:34
- * @LastEditTime: 2021-05-04 15:53:08
+ * @LastEditTime: 2021-10-07 19:46:54
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /极线可视化/src/PoseSolver.cc
@@ -22,11 +22,11 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include "Config.h"
-#include "PoseSolver.h"
-#include "Optimization.h"
+#include "DataPretreat/Config.h"
+#include "FrontEnd/PoseSolver.h"
+#include "BackEnd/Optimization.h"
 
-// #define DEBUG
+#define DEBUG
 #ifdef DEBUG
     #define CHECK_INFO(x) std::cout << "[DEBUG] " << x << std::endl;
     #define CHECK_INFO_2(x,y) std::cout << "[DEBUG] " << x << y << std::endl;
@@ -135,9 +135,6 @@ void PoseSolver::ComputePnP()
     opts.BA_OptimizePose(PointsInWorldVec_0, PointsInPixelVec_1, T12_ransac);
     double Optimization_Error = Average_ReProjectError(PointsInWorldVec_0, PointsInPixelVec_1, T12_ransac);
     CHECK_INFO_2("Optimization error: ", Optimization_Error);
-    #if DEBUG
-        std::cout << "[INFO] Optimization Error: " << Optimization_Error << std::endl;
-    #endif
 }
 
 void PoseSolver::EPnP_OpenCV(std::vector<int> &idVec, std::vector<cv::Point3f> &PointsInWorldVec_0, std::vector<cv::Point3f> &PointsInPixelVec_1)
@@ -206,7 +203,6 @@ void PoseSolver::YuPnP(std::vector<int> &idVec, std::vector<cv::Point3f> &Points
     nx = P12.normalized();
     nz = nx.cross(P13).normalized();
     ny = nz.cross(nx);
-    // std::cout << ny << std::endl;
 
     Eigen::Matrix3f N;
     N.row(0) = nx.transpose();
@@ -220,8 +216,6 @@ void PoseSolver::YuPnP(std::vector<int> &idVec, std::vector<cv::Point3f> &Points
     double X2 = P2_(0);
     double X3 = P3_(0);
     double Y3 = P3_(1);
-    // std::cout << P2_ << std::endl;
-    // std::cout << P3_ << std::endl;
 
     // Eigen::Vector3f w1, w2, w3;
     // w1 << x2, (-x2*X3+x3*X3)*1.0/Y3, y2, (-y2*X3+y3*X3)*1.0/Y3, 0, 0, 1, 0, 0;

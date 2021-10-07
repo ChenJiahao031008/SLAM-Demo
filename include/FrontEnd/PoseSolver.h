@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-28 17:41:54
- * @LastEditTime: 2021-04-11 14:30:23
+ * @LastEditTime: 2021-10-07 19:45:06
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /极线可视化/include/PoseSolver.h
@@ -19,7 +19,7 @@
 #include <Eigen/Dense>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
-#include "Config.h"
+#include "DataPretreat/Config.h"
 
 class PoseSolver
 {

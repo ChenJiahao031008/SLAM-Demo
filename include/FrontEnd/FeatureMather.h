@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-26 09:03:40
- * @LastEditTime: 2021-03-26 16:42:38
+ * @LastEditTime: 2021-10-07 19:45:02
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /极线可视化/include/FeatureMather.h
@@ -16,7 +16,7 @@
 
 #include <vector>
 #include <cassert>
-#include "Config.h"
+#include "DataPretreat/Config.h"
 
 class FeatureMatcher
 {

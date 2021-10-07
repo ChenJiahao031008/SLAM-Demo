@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-02 10:37:48
- * @LastEditTime: 2021-05-04 14:43:34
+ * @LastEditTime: 2021-10-07 19:45:43
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /SLAM-Demo/src/Optimization.cc
@@ -24,12 +24,11 @@
 #include <g2o/solvers/csparse/linear_solver_csparse.h>
 #include <g2o/types/sba/types_six_dof_expmap.h>
 
+#include "DataPretreat/Config.h"
+#include "BackEnd/Optimization.h"
+#include "FrontEnd/PoseSolver.h"
 
-#include "Config.h"
-#include "Optimization.h"
-#include "PoseSolver.h"
-
-// #define DEBUG
+#define DEBUG
 #ifdef DEBUG
     #define CHECK_INFO(x) std::cout << "[DEBUG] " << x << std::endl;
     #define CHECK_INFO_2(x,y) std::cout << "[DEBUG] " << x << y << std::endl;
@@ -47,10 +46,6 @@ Optimization::~Optimization()
 {
 }
 
-// template<T, N>
-// void Optimization::LeastSquare(std::vector<T> &Observation, N &Result)
-// {
-// }
 
 void Optimization::Kneip_Ransac(std::vector<cv::Point3f> &PointsInWorldVec_0
     , std::vector<cv::Point3f> &PointsInPixelVec_1
@@ -194,7 +189,7 @@ void Optimization::BA_OptimizePose(std::vector<cv::Point3f> &points_3d
     std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
     std::chrono::duration<double> time_used = std::chrono::duration_cast<std::chrono::duration<double>> ( t2-t1 );
 
-    #if DEBUG
+    #ifdef DEBUG
         std::cout<< "[INFO] Optimization costs time: "<<time_used.count() <<" seconds."<<std::endl;
     #endif
 

@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-02 10:37:55
- * @LastEditTime: 2021-04-07 15:39:51
+ * @LastEditTime: 2021-10-07 19:44:47
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /SLAM-Demo/include/Optimization.h
@@ -15,7 +15,7 @@
 #include <Eigen/Dense>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
-#include "Config.h"
+#include "DataPretreat/Config.h"
 
 class Optimization
 {

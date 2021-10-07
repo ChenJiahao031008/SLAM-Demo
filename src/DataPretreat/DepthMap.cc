@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-26 14:55:20
- * @LastEditTime: 2021-05-04 21:08:41
+ * @LastEditTime: 2021-10-07 19:46:20
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /极线可视化/src/DepthMap.cc
@@ -14,8 +14,8 @@
 #include <opencv2/features2d/features2d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <cmath>
-#include "DepthMap.h"
-#include "Config.h"
+#include "DataPretreat/DepthMap.h"
+#include "DataPretreat/Config.h"
 
 cv::Mat Depth_tmp;
 

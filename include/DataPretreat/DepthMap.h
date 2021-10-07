@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-26 14:55:09
- * @LastEditTime: 2021-05-04 14:40:05
+ * @LastEditTime: 2021-10-07 19:44:54
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /极线可视化/include/DepthMap.h
@@ -16,7 +16,7 @@
 #include <opencv2/features2d/features2d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <cmath>
-#include "Config.h"
+#include "DataPretreat/Config.h"
 
 class DepthMap
 {

@@ -1,11 +1,3 @@
-/*
- * @Author: your name
- * @Date: 2021-03-21 19:17:57
- * @LastEditTime: 2021-05-04 16:21:21
- * @LastEditors: Please set LastEditors
- * @Description: In User Settings Edit
- * @FilePath: /极线可视化/test.cpp
- */
 #include <iostream>
 #include <opencv2/core/core.hpp>
 #include <opencv2/opencv.hpp>
@@ -14,12 +6,11 @@
 #include <vector>
 #include <cassert>
 #include <chrono>
-#include "FeatureMather.h"
-// #include "EpipolarLine.h"
-#include "Config.h"
-#include "DepthMap.h"
-#include "PoseSolver.h"
-#include "Optimization.h"
+#include "DataPretreat/Config.h"
+#include "DataPretreat/DepthMap.h"
+#include "FrontEnd/FeatureMather.h"
+#include "FrontEnd/PoseSolver.h"
+#include "BackEnd/Optimization.h"
 
 using namespace std;
 using namespace cv;
@@ -133,7 +124,7 @@ int main(int argc, char const *argv[])
         cv::Mat imgDepth_1_left = dm.GetDepthMap_1();
         // std::cout << "[INFO] DepthMap Build Finished! " << std::endl;
 
-        // // Step 2_3_3 计算三维空间点
+        // Step 2_3_3 计算三维空间点
         std::vector<cv::Point3f> PixelPoint3fVec_0, PixelPoint3fVec_1;
         std::vector<cv::KeyPoint> Kp1_Opt, Kp2_Opt;
         for (size_t i(0); i< matches.size(); ++i){
@@ -158,7 +149,7 @@ int main(int argc, char const *argv[])
             continue;
         }
 
-        // // Step 2_4 P3P位姿求解及优化
+        // Step 2_4 P3P位姿求解及优化
         PoseSolver ps(PixelPoint3fVec_0, PixelPoint3fVec_1, conf, 1);
         ps.ComputePnP();
 
