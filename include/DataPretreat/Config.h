@@ -1,13 +1,13 @@
 /*
  * @Author: your name
  * @Date: 2021-03-26 11:25:51
- * @LastEditTime: 2021-05-03 21:11:28
- * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2021-10-08 19:21:17
+ * @LastEditors: Chen Jiahao
  * @Description: In User Settings Edit
- * @FilePath: /极线可视化/include/config.h
+ * @FilePath: /SLAM-Demo/include/DataPretreat/Config.h
  */
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef _CONFIG_H_
+#define _CONFIG_H_
 
 #include <iostream>
 #include <string>

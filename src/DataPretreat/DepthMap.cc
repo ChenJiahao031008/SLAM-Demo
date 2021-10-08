@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-26 14:55:20
- * @LastEditTime: 2021-10-08 19:02:14
+ * @LastEditTime: 2021-10-08 19:59:57
  * @LastEditors: Chen Jiahao
  * @Description: In User Settings Edit
  * @FilePath: /SLAM-Demo/src/DataPretreat/DepthMap.cc
@@ -203,6 +203,11 @@ double DepthMap::GetDepth(cv::Point2f &coordinate)
     double depth;
     depth = imgDepth.ptr<float>((int)coordinate.y)[(int)coordinate.x];
     return depth;
+}
+
+cv::Mat DepthMap::GetDepthMap()
+{
+    return imgDepth;
 }
 
 void DepthMap::CheckDepthMap(cv::Mat& depth, cv::Mat &depth_show){

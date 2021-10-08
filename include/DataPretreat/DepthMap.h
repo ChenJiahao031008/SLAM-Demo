@@ -36,7 +36,7 @@ public:
 
     cv::Mat SGBM(Config &config, cv::Mat &img_left, cv::Mat &img_right);
 
-    cv::Mat GetDepthMap() { return imgDepth; };
+    cv::Mat GetDepthMap();
 
     double GetDepth(cv::Point2f &coordinate);
 

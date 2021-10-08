@@ -1,7 +1,7 @@
 /*
  * @Author: Chen Jiahao
  * @Date: 2021-10-08 11:16:02
- * @LastEditTime: 2021-10-08 17:51:57
+ * @LastEditTime: 2021-10-08 20:40:12
  * @LastEditors: Chen Jiahao
  * @Description: In User Settings Edit
  * @FilePath: /SLAM-Demo/src/DataPretreat/Frame.cc
@@ -11,8 +11,8 @@
 Frame::Frame()
 {}
 
-
-Frame::Frame(const cv::Mat &imgRGBL_, Config &config_) : imgRGBL(imgRGBL_.clone())
+Frame::Frame(const cv::Mat &imgRGBL_, const cv::Mat &imgRGBR_, Config &config_)
+    : imgRGBL(imgRGBL_.clone()), imgRGBR(imgRGBR_.clone())
 {
     if (config_.app.Resize == true)
         cv::resize(imgRGBL, imgResizeL, cv::Size(640, 480));
@@ -23,9 +23,11 @@ Frame::Frame(const cv::Mat &imgRGBL_, Config &config_) : imgRGBL(imgRGBL_.clone(
 
     FeatureManager fm(config_.app);
     fm.FeatureExtraction(imgGrayL, KeyPoints, Descriptors);
+
+    BuildDepthMap(imgRGBR_, config_);
 }
 
-cv::Mat Frame::BuildDepthMap(const cv::Mat &imageR_, Config &config_)
+void Frame::BuildDepthMap(const cv::Mat &imageR_, Config &config_)
 {
     DepthMap dm;
 
@@ -46,13 +48,22 @@ cv::Mat Frame::BuildDepthMap(const cv::Mat &imageR_, Config &config_)
     }
 
     imgDepth = dm.GetDepthMap();
-    return imgDepth;
 }
 
 void Frame::GetKPDes(std::vector<cv::KeyPoint> &KeyPoints_, cv::Mat &Descriptors_)
 {
     KeyPoints_ = KeyPoints;
     Descriptors_ = Descriptors.clone();
+}
+
+cv::Mat Frame::GetDepthMap()
+{
+    return imgDepth;
+}
+
+cv::Mat Frame::GetIMGLeft()
+{
+    return imgRGBL;
 }
 
 Frame::~Frame()

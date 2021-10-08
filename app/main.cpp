@@ -4,17 +4,17 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/features2d/features2d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <Eigen/Dense>
+#include <Eigen/Core>
+#include <Eigen/Geometry>
 #include <vector>
 #include <cassert>
 #include <chrono>
 #include "DataPretreat/Config.h"
 #include "DataPretreat/DepthMap.h"
 #include "DataPretreat/Frame.h"
-
-#include "FrontEnd/FeatureMather.h"
-#include "FrontEnd/PoseSolver.h"
 #include "FrontEnd/FeatureManager.h"
-
+#include "FrontEnd/Tracking.h"
 #include "BackEnd/Optimization.h"
 
 using namespace std;
@@ -63,13 +63,16 @@ int main(int argc, char const *argv[])
     cv::Mat imgRGBL_1, imgRGBR_1, imgDepth_1;
     imgRGBL_0 = cv::imread(vstrImageLeft[0], CV_LOAD_IMAGE_UNCHANGED);
     imgRGBR_0 = cv::imread(vstrImageRight[0], CV_LOAD_IMAGE_UNCHANGED);
-    Frame preFrame(imgRGBL_0, conf);
+    Frame preFrame(imgRGBL_0, imgRGBR_0, conf);
+
+    Eigen::Matrix4d Tcw = Eigen::Matrix4d::Identity();
 
     // Part 2：对每相邻两帧图像进行匹配和位姿计算
     for(size_t i=1; i<nImages; i++)
     {
         std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
-        // Step 2_1 读取图像并提取特征
+
+        cout << "===>> Current Frame: " << vTimestamps[i] << endl;
         imgRGBL_1 = cv::imread(vstrImageLeft[i], CV_LOAD_IMAGE_UNCHANGED);
         imgRGBR_1 = cv::imread(vstrImageRight[i], CV_LOAD_IMAGE_UNCHANGED);
         if (imgRGBL_0.empty() || imgRGBR_1.empty())
@@ -78,60 +81,17 @@ int main(int argc, char const *argv[])
             return -1;
         }
 
-        cout << "===>> Current Frame: " << vTimestamps[i] << endl;
+        Frame curFrame(imgRGBL_1, imgRGBR_1, conf);
 
-        Frame curFrame(imgRGBL_1, conf);
-        imgDepth_0 = preFrame.BuildDepthMap(imgRGBR_0, conf);
-        imgDepth_1 = curFrame.BuildDepthMap(imgRGBR_1, conf);
-        std::cout << "[INFO] DepthMap Build Finished! " << std::endl;
-
-        // Step 2_2 特征匹配
-        std::vector<DMatch> matches;
-        std::vector<cv::KeyPoint> KPs1, KPs2;
-        cv::Mat Des1, Des2;
-        preFrame.GetKPDes(KPs1, Des1);
-        curFrame.GetKPDes(KPs2, Des2);
-
-        FeatureManager fm(conf.app);
-        fm.FeatureMatch(Des1, Des2, matches);
+        Tracking tracker;
+        tracker.RunTracking(preFrame, curFrame,conf);
 
         preFrame = curFrame;
-
-        // Step 2_3_3 计算三维空间点
-        std::vector<cv::Point3f> PixelPoint3fVec_0, PixelPoint3fVec_1;
-        std::vector<cv::KeyPoint> KPs1_Opt, KPs2_Opt;
-        for (size_t i(0); i< matches.size(); ++i){
-            cv::Point2f tmpPoint_0 = KPs1[matches[i].queryIdx].pt;
-            cv::Point2f tmpPoint_1 = KPs2[matches[i].trainIdx].pt;
-            KPs1_Opt.emplace_back(KPs1[matches[i].queryIdx]);
-            KPs2_Opt.emplace_back(KPs2[matches[i].queryIdx]);
-            double depth_0 = imgDepth_0.ptr<float>((int)tmpPoint_0.y)[(int)tmpPoint_0.x];
-            double depth_1 = imgDepth_1.ptr<float>((int)tmpPoint_1.y)[(int)tmpPoint_1.x];
-            if (depth_0<=0 || depth_1 <=0) continue;
-            PixelPoint3fVec_0.emplace_back(tmpPoint_0.x, tmpPoint_0.y, depth_0);
-            PixelPoint3fVec_1.emplace_back(tmpPoint_1.x, tmpPoint_1.y, depth_1);
-        }
-        // CHECK POINT 2
-        cv::Mat KeyPointShow;
-        // drawKeypoints(imgRize_0, KPs1_Opt, KeyPointShow, cv::Scalar(0, 255, 0), DrawMatchesFlags::DEFAULT);
-        drawKeypoints(imgRGBR_1, KPs2_Opt, KeyPointShow, cv::Scalar(0, 255, 0), DrawMatchesFlags::DEFAULT);
-        imshow("KeyPointShow",KeyPointShow);
-        if (PixelPoint3fVec_0.size() <6 || PixelPoint3fVec_1.size() <6){
-            cout << "[WARRING] Mathes less than 6 pairs." << endl;
-            waitKey(0);
-            continue;
-        }
-
-        // Step 2_4 P3P位姿求解及优化
-        PoseSolver ps(PixelPoint3fVec_0, PixelPoint3fVec_1, conf, 1);
-        ps.ComputePnP();
-
         waitKey(1);
 
-
-        // std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
-        // std::chrono::duration<double> time_used = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
-        // std::cout << "[INFO] costs time: " << time_used.count() << " seconds." << std::endl;
+        std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
+        std::chrono::duration<double> time_used = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
+        std::cout << "[INFO] costs time: " << time_used.count() << " seconds." << std::endl;
     }
 
     return 0;

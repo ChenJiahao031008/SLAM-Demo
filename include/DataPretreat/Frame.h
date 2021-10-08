@@ -2,10 +2,13 @@
  * @Author: Chen Jiahao
  * @Date: 2021-10-08 11:33:08
  * @LastEditors: Chen Jiahao
- * @LastEditTime: 2021-10-08 17:52:05
+ * @LastEditTime: 2021-10-08 20:41:24
  * @Description: file content
  * @FilePath: /SLAM-Demo/include/DataPretreat/Frame.h
  */
+
+#ifndef _FRAME_H_
+#define _FRAME_H_
 
 #include <iostream>
 #include <opencv2/core/core.hpp>
@@ -30,11 +33,16 @@ public:
     Frame();
     ~Frame();
 
-    Frame(const cv::Mat &imgRGBL_, Config &config_);
+    Frame(const cv::Mat &imgRGBL_, const cv::Mat &imageR_, Config &config_);
 
-    cv::Mat BuildDepthMap(const cv::Mat &imageR_, Config &config_);
+    void BuildDepthMap(const cv::Mat &imageR_, Config &config_);
 
     void GetKPDes(std::vector<cv::KeyPoint> &KeyPoints_, cv::Mat &Descriptors_);
+
+    cv::Mat GetDepthMap();
+
+    cv::Mat GetIMGLeft();
 };
 
 
+#endif
