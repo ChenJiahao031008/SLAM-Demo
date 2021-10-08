@@ -1,10 +1,10 @@
 /*
  * @Author: your name
  * @Date: 2021-03-26 14:55:20
- * @LastEditTime: 2021-10-07 19:46:20
- * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2021-10-08 19:02:14
+ * @LastEditors: Chen Jiahao
  * @Description: In User Settings Edit
- * @FilePath: /极线可视化/src/DepthMap.cc
+ * @FilePath: /SLAM-Demo/src/DataPretreat/DepthMap.cc
  */
 
 #include <iostream>
@@ -19,15 +19,13 @@
 
 cv::Mat Depth_tmp;
 
-DepthMap::DepthMap(cv::Mat &img_0, cv::Mat &img_1)
-: Frame_0_left(img_0),Frame_1_left(img_1)
+DepthMap::DepthMap()
 {
 }
 
-void DepthMap::RGBDDepthBuilder(cv::Mat &depth_0, cv::Mat &depth_1, Config &config)
+void DepthMap::RGBDDepthBuilder(cv::Mat &imgDepth_, Config &config)
 {
-    depth_0.convertTo(DepthImage_0_left, CV_32FC1);
-    depth_1.convertTo(DepthImage_1_left, CV_32FC1);
+    imgDepth_.convertTo(imgDepth, CV_32FC1);
 
     // Depth_tmp = DepthImage_0_left.clone();
     // cvNamedWindow("depth8U");
@@ -37,13 +35,12 @@ void DepthMap::RGBDDepthBuilder(cv::Mat &depth_0, cv::Mat &depth_1, Config &conf
     // cv::imwrite("../result/depth.png", depth_0);
 }
 
-void DepthMap::StereoDepthBuilder(cv::Mat &img_0, cv::Mat& img_1, Config &config)
+void DepthMap::StereoDepthBuilder(cv::Mat &imgRGBL_, cv::Mat &imgRGBR_, Config &config)
 {
-    Frame_0_right = img_0.clone();
-    Frame_1_right = img_1.clone();
+    imgRGBL = imgRGBL_.clone();
+    imgRGBR = imgRGBR_.clone();
     if(config.ss.MatchingMethod==0){
-        DepthImage_0_left = SGBM(config, Frame_0_left, Frame_0_right);
-        DepthImage_1_left = SGBM(config, Frame_1_left, Frame_1_right);
+        imgDepth = SGBM(config, imgRGBL, imgRGBR);
     }
 
 }
@@ -201,16 +198,10 @@ void Mouse_Callback(int event,int x,int y,int flags,void *param){
 
 }
 
-double DepthMap::GetDepth(cv::Point2f &coordinate, const int &flag)
+double DepthMap::GetDepth(cv::Point2f &coordinate)
 {
     double depth;
-    if (flag == 0){
-        depth = DepthImage_0_left.ptr<float>((int)coordinate.y)[(int)coordinate.x];
-    }else if(flag == 1){
-        depth = DepthImage_1_left.ptr<float>((int)coordinate.y)[(int)coordinate.x];
-    }else{
-        std::cerr << "[ERRO] No DepthMap" << std::endl;
-    }
+    depth = imgDepth.ptr<float>((int)coordinate.y)[(int)coordinate.x];
     return depth;
 }
 

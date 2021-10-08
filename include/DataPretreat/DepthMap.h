@@ -1,10 +1,10 @@
 /*
  * @Author: your name
  * @Date: 2021-03-26 14:55:09
- * @LastEditTime: 2021-10-07 19:44:54
- * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2021-10-08 14:04:52
+ * @LastEditors: Chen Jiahao
  * @Description: In User Settings Edit
- * @FilePath: /极线可视化/include/DepthMap.h
+ * @FilePath: /SLAM-Demo/include/DataPretreat/DepthMap.h
  */
 #ifndef DEPTHMAP_H
 #define DEPTHMAP_H
@@ -21,14 +21,14 @@
 class DepthMap
 {
 private:
-    cv::Mat Frame_0_left, Frame_1_left, Frame_0_right,Frame_1_right;
-    cv::Mat DepthImage_0_left, DepthImage_1_left;
+    cv::Mat imgRGBL, imgRGBR;
+    cv::Mat imgDepth;
 public:
-    DepthMap(cv::Mat &img_0, cv::Mat &img_1);
+    DepthMap();
 
-    void StereoDepthBuilder(cv::Mat &img_0, cv::Mat& img_1, Config& config);
+    void RGBDDepthBuilder(cv::Mat &imgDepth_, Config &config);
 
-    void RGBDDepthBuilder(cv::Mat &depth_0, cv::Mat &depth_1, Config &config);
+    void StereoDepthBuilder(cv::Mat &imgRGBL_, cv::Mat &imgRGBR_, Config &config);
 
     void insertDepth32f(cv::Mat& depth);
 
@@ -36,11 +36,9 @@ public:
 
     cv::Mat SGBM(Config &config, cv::Mat &img_left, cv::Mat &img_right);
 
-    cv::Mat GetDepthMap_0(){ return DepthImage_0_left; };
+    cv::Mat GetDepthMap() { return imgDepth; };
 
-    cv::Mat GetDepthMap_1(){ return DepthImage_1_left; };
-
-    double GetDepth(cv::Point2f &coordinate, const int &flag);
+    double GetDepth(cv::Point2f &coordinate);
 
 };
 

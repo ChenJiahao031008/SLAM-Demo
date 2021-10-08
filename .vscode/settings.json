@@ -9,7 +9,7 @@
     "todo-tree.general.tags": [
         "?",
         "!!!",
-        " Step "
+        " Step ",
         " Part"
     ],
     "todo-tree.highlights.customHighlight": {
@@ -40,7 +40,7 @@
             "type": "text-and-comment"
         }
     },
-    "todo-tree.general.revealBehaviour": "highlight todo",
+    "todo-tree.general.revealBehaviour": "end of todo",
     "todo-tree.tree.showCountsInTree": true,
     "todo-tree.filtering.excludeGlobs": [
         "**/*.txt",
@@ -112,5 +112,14 @@
         "xutility": "cpp",
         "alignedvector3": "cpp",
         "functional": "cpp"
-    }
+    },
+    "fileheader.Author": "Chen Jiahao",
+    "fileheader.LastModifiedBy": "Chen Jiahao",
+    "fileheader.cursorMode": {
+
+    },
+    "fileheader.customMade": {
+
+    },
+    "C_Cpp.errorSquiggles": "Enabled"
 }

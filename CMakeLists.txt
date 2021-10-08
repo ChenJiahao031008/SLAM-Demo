@@ -16,20 +16,22 @@ include_directories(
     "/usr/include/eigen3"
     ${PROJECT_SOURCE_DIR}
     ${PROJECT_SOURCE_DIR}/include
-    ${PROJECT_SOURCE_DIR}/include/DataPretreat
-    ${PROJECT_SOURCE_DIR}/include/FrontEnd
-    ${PROJECT_SOURCE_DIR}/include/BackEnd
-    ${PROJECT_SOURCE_DIR}/include/LoopClosing
-    ${PROJECT_SOURCE_DIR}/include/Viewer
-    ${PROJECT_SOURCE_DIR}/include/Tools
+    # ${PROJECT_SOURCE_DIR}/include/DataPretreat
+    # ${PROJECT_SOURCE_DIR}/include/FrontEnd
+    # ${PROJECT_SOURCE_DIR}/include/BackEnd
+    # ${PROJECT_SOURCE_DIR}/include/LoopClosing
+    # ${PROJECT_SOURCE_DIR}/include/Viewer
+    # ${PROJECT_SOURCE_DIR}/include/Tools
     ${CSPARSE_INCLUDE_DIR}
     ${OpenCV_INCLUDE_DIRS}
     ${G2O_INCLUDE_DIRS}
 )
 
 add_library(${PROJECT_NAME} SHARED
+    src/DataPretreat/Frame.cc
     src/DataPretreat/DepthMap.cc
-    src/FrontEnd/FeatureMather.cc
+    src/FrontEnd/Tracking.cc
+    src/FrontEnd/FeatureManager.cc
     src/FrontEnd/EpipolarLine.cc
     src/FrontEnd/PoseSolver.cc
     src/BackEnd/Optimization.cc

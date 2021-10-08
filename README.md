@@ -1,11 +1,3 @@
-<!--
- * @Author: your name
- * @Date: 2021-04-07 16:36:22
- * @LastEditTime: 2021-04-07 16:41:18
- * @LastEditors: Please set LastEditors
- * @Description: In User Settings Edit
- * @FilePath: /SLAM-Demo/README.md
--->
 # SLAM-Demo
 
 从零开始一点点搭建自己的框架，有空时候一点点完善。
@@ -23,4 +15,6 @@
 2021/06/15 添加了YuPnP算法，文章上说效果比Kneip强，但是实测属于一个级别的，差别不大。
 
 2021/10/07 学习多传感器融合课程后打算仿照其中框架对代码进行规范化重构，并改成ros版本
+
+2021/10/08 继续调整代码框架，以Frame类为核心进行构建
 

@@ -1,10 +1,10 @@
 /*
  * @Author: your name
  * @Date: 2021-04-02 10:37:48
- * @LastEditTime: 2021-10-07 19:45:43
- * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2021-10-08 11:39:50
+ * @LastEditors: Chen Jiahao
  * @Description: In User Settings Edit
- * @FilePath: /SLAM-Demo/src/Optimization.cc
+ * @FilePath: /SLAM-Demo/src/BackEnd/Optimization.cc
  */
 
 #include <cmath>
@@ -28,7 +28,7 @@
 #include "BackEnd/Optimization.h"
 #include "FrontEnd/PoseSolver.h"
 
-#define DEBUG
+// #define DEBUG
 #ifdef DEBUG
     #define CHECK_INFO(x) std::cout << "[DEBUG] " << x << std::endl;
     #define CHECK_INFO_2(x,y) std::cout << "[DEBUG] " << x << y << std::endl;
