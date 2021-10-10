@@ -63,9 +63,10 @@ int main(int argc, char const *argv[])
     cv::Mat imgRGBL_1, imgRGBR_1, imgDepth_1;
     imgRGBL_0 = cv::imread(vstrImageLeft[0], CV_LOAD_IMAGE_UNCHANGED);
     imgRGBR_0 = cv::imread(vstrImageRight[0], CV_LOAD_IMAGE_UNCHANGED);
-    Frame preFrame(imgRGBL_0, imgRGBR_0, conf);
+    Frame preFrame(imgRGBL_0, imgRGBR_0, conf, vTimestamps[0]);
 
-    Eigen::Matrix4d Tcw = Eigen::Matrix4d::Identity();
+    Eigen::Matrix4f Tcw = Eigen::Matrix4f::Identity();
+    Tracking tracker(Tcw, conf);
 
     // Part 2：对每相邻两帧图像进行匹配和位姿计算
     for(size_t i=1; i<nImages; i++)
@@ -75,24 +76,29 @@ int main(int argc, char const *argv[])
         cout << "===>> Current Frame: " << vTimestamps[i] << endl;
         imgRGBL_1 = cv::imread(vstrImageLeft[i], CV_LOAD_IMAGE_UNCHANGED);
         imgRGBR_1 = cv::imread(vstrImageRight[i], CV_LOAD_IMAGE_UNCHANGED);
-        if (imgRGBL_0.empty() || imgRGBR_1.empty())
+        if (imgRGBL_1.empty() || imgRGBR_1.empty())
         {
             cerr << "[ERROR] Please check the path of images!" << endl;
-            return -1;
+            continue;
         }
+        // 生成当前帧
+        Frame curFrame(imgRGBL_1, imgRGBR_1, conf, vTimestamps[i]);
 
-        Frame curFrame(imgRGBL_1, imgRGBR_1, conf);
 
-        Tracking tracker;
+        // 运行追踪线程
         tracker.RunTracking(preFrame, curFrame,conf);
 
+        // 将当前帧置为上一帧
         preFrame = curFrame;
+
         waitKey(1);
 
         std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
         std::chrono::duration<double> time_used = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
         std::cout << "[INFO] costs time: " << time_used.count() << " seconds." << std::endl;
     }
+
+    tracker.SavePose(conf.app.pose_path);
 
     return 0;
 }
@@ -115,7 +121,8 @@ void LoadImagesStereo(const string &strPathToSequence, vector<string> &vstrImage
         vTimestamps.push_back(st);
     }
 
-    const int nTimes = 20;
+    const int nTimes = 100;
+    // const int nTimes = vTimestamps.size();
     string strPrefixLeft = strPathToSequence + "/image_2/";
     string strPrefixRight = strPathToSequence + "/image_3/";
     for(int i=0; i<nTimes; i++)

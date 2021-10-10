@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-26 11:25:51
- * @LastEditTime: 2021-10-08 19:21:17
+ * @LastEditTime: 2021-10-09 16:06:35
  * @LastEditors: Chen Jiahao
  * @Description: In User Settings Edit
  * @FilePath: /SLAM-Demo/include/DataPretreat/Config.h
@@ -25,6 +25,7 @@ public:
         std::string img_dataset;
         std::string img_path;
         std::string Mode;
+        std::string pose_path;
         int ORB_Features;
         int SIFT_Features;
         int SURF_Features;
@@ -82,6 +83,8 @@ public:
         app.SIFT_Features = SettingsFile["Image.SIFT_Features"];
         app.SURF_Features = SettingsFile["Image.SURF_Features"];
         app.Resize = SettingsFile["Image.Resize"];
+
+        app.pose_path = static_cast<std::string>( SettingsFile["Pose.Path"]);
     };
 
     void StereoSettingInit(){

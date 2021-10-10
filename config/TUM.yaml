@@ -3,7 +3,7 @@
 # image intput
 ## KITTI/TUM/OTHER
 Image.Dataset   :  "TUM"
-Image.Path      :  "/home/chen/Datasets/TUM/Robot_SLAM/rgbd_dataset_freiburg2_pioneer_slam/"
+Image.Path      :  "/media/chen/demo/Dataset/TUM/HandleSLAM/rgbd_dataset_freiburg1_desk/"
 Image.Mode      :  "RGBD"
 
 Image.ORB_Features : 1
@@ -12,19 +12,21 @@ Image.SURF_Features: 0
 
 Image.Resize: 0
 
+Pose.Path : "/home/chen/桌面/SLAM/SLAM-Demo/result/res.txt"
 
 # ======================================================
 
 # Camera calibration and distortion parameters (OpenCV)
-Camera.fx: 520.908620
-Camera.fy: 521.007327
-Camera.cx: 325.141442
-Camera.cy: 249.701764
+Camera.fx: 517.306408
+Camera.fy: 516.469215
+Camera.cx: 318.643040
+Camera.cy: 255.313989
 
-Camera.k1: 0.231222
-Camera.k2: -0.784899
-Camera.p1: -0.003257
-Camera.p2: -0.000105
+Camera.k1: 0.262383
+Camera.k2: -0.953104
+Camera.p1: -0.005358
+Camera.p2: 0.002628
+Camera.k3: 1.163314
 
 Camera.width : 640
 Camera.height: 480
@@ -45,6 +47,6 @@ Stereo.th: 0
 Stereo.MatchingMethod: 0
 
 # ======================================================
-Opts.maxRansacIter : 800
+Opts.maxRansacIter : 20
 Opts.ErrorTH : 2
 

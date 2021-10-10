@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-26 14:55:20
- * @LastEditTime: 2021-10-08 19:59:57
+ * @LastEditTime: 2021-10-10 10:56:06
  * @LastEditors: Chen Jiahao
  * @Description: In User Settings Edit
  * @FilePath: /SLAM-Demo/src/DataPretreat/DepthMap.cc
@@ -25,14 +25,10 @@ DepthMap::DepthMap()
 
 void DepthMap::RGBDDepthBuilder(cv::Mat &imgDepth_, Config &config)
 {
-    imgDepth_.convertTo(imgDepth, CV_32FC1);
 
-    // Depth_tmp = DepthImage_0_left.clone();
-    // cvNamedWindow("depth8U");
-    // cvSetMouseCallback("depth8U", Mouse_Callback, 0);
-    // cv::imshow("depth8U", depth_0);
-    // cv::waitKey(0);
-    // cv::imwrite("../result/depth.png", depth_0);
+    imgDepth_.convertTo(imgDepth, CV_32FC1);
+    // std::cout << imgDepth_.type() << std::endl;
+    // cv::imwrite("../result/depth.png", imgDepth_);
 }
 
 void DepthMap::StereoDepthBuilder(cv::Mat &imgRGBL_, cv::Mat &imgRGBR_, Config &config)

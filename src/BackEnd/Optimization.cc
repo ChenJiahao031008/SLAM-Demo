@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-02 10:37:48
- * @LastEditTime: 2021-10-08 11:39:50
+ * @LastEditTime: 2021-10-09 22:00:36
  * @LastEditors: Chen Jiahao
  * @Description: In User Settings Edit
  * @FilePath: /SLAM-Demo/src/BackEnd/Optimization.cc
@@ -9,7 +9,7 @@
 
 #include <cmath>
 #include <iostream>
-#include <cassert>
+#include <assert.h>
 #include <chrono>
 #include <cstdlib> // 随机数
 
@@ -53,6 +53,7 @@ void Optimization::Kneip_Ransac(std::vector<cv::Point3f> &PointsInWorldVec_0
     , Eigen::Matrix4f &Pose )
 {
     assert(PointsInWorldVec_0.size() == PointsInPixelVec_1.size());
+    assert(PointsInWorldVec_0.size() > 4);
 
     unsigned seed = time(0);
     srand(seed);
@@ -64,22 +65,22 @@ void Optimization::Kneip_Ransac(std::vector<cv::Point3f> &PointsInWorldVec_0
     PoseSolver ps(PointsInWorldVec_0, PointsInPixelVec_1, setting);
 
     for (size_t i(0); i<setting.oc.maxRansacIter; ++i){
+
         std::set<int> idSet;
         std::vector<int> idVec;
-        while( idSet.size() <4 ){
-            int rand_num = static_cast<int>(rand()%(PointsInWorldVec_0.size()));
+        while( idSet.size() < 4 ){
+            int rand_num = rand()%(PointsInWorldVec_0.size());
             idSet.insert(rand_num);
         }
 
         for (std::set<int>::iterator iter = idSet.begin(); iter!=idSet.end(); ++iter){
             idVec.push_back(*iter);
-            // CHECK_INFO_2("rand_num is: ", idVec.back());
         }
         assert(idVec.size()==4);
 
 
-        ps.YuPnP(idVec, PointsInWorldVec_0, PointsInPixelVec_1);
-        // ps.KneipPnP(idVec, PointsInWorldVec_0, PointsInPixelVec_1);
+        // ps.YuPnP(idVec, PointsInWorldVec_0, PointsInPixelVec_1);
+        ps.KneipPnP(idVec, PointsInWorldVec_0, PointsInPixelVec_1);
         Eigen::Matrix4f T12 = ps.GetT12();
         PoseVec.emplace_back(T12);
 
@@ -106,7 +107,7 @@ void Optimization::Kneip_Ransac(std::vector<cv::Point3f> &PointsInWorldVec_0
         Interior[id] = 1;
     }
 
-    CHECK_INFO_2("max id: ", max_pos);
+    // CHECK_INFO_2("max id: ", max_pos);
 
 }
 

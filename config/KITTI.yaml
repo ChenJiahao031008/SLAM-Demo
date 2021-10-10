@@ -3,7 +3,8 @@
 # image intput
 ## KITTI/TUM/OTHER
 Image.Dataset   :  "KITTI"
-Image.Path      :  "/home/chen/catkin_ws/src/SLAM-Demo/data/"
+Image.Path      :  "/media/chen/demo/Dataset/KITTI/data_odometry_color/dataset/sequences/00/"
+# Image.Path      :  "/home/chen/桌面/SLAM/SLAM-Demo/data/"
 Image.Mode      :  "Stereo"
 
 Image.ORB_Features : 1
@@ -11,6 +12,8 @@ Image.SIFT_Features: 0
 Image.SURF_Features: 0
 
 Image.Resize: 0
+
+Pose.Path : "/home/chen/桌面/SLAM/SLAM-Demo/result/res.txt"
 
 
 # ======================================================

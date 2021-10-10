@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-03-28 17:41:34
- * @LastEditTime: 2021-10-08 21:25:47
+ * @LastEditTime: 2021-10-09 19:12:01
  * @LastEditors: Chen Jiahao
  * @Description: In User Settings Edit
  * @FilePath: /SLAM-Demo/src/FrontEnd/PoseSolver.cc
@@ -72,6 +72,7 @@ void PoseSolver::SetOrigin(const int &flag){
 
 }
 
+
 void PoseSolver::Unproject(const int &PoseId, const Eigen::Matrix4f &T)
 {
     for (size_t i(0); i< PixelPointsDict[PoseId]->size(); ++i){
@@ -80,11 +81,13 @@ void PoseSolver::Unproject(const int &PoseId, const Eigen::Matrix4f &T)
         float z = PixelPointsDict[PoseId]->at(i).z;
         if (z <= 0) continue;
         Eigen::Vector3f PixelPoint(u, v, 1);
+        // 像素点投影到相机坐标系下
         Eigen::Vector3f PointInCam = z*(eigenK.inverse()*PixelPoint);
         // std::cout << "R is " << std::endl << T.block(0,0,3,3).transpose() << std::endl;
         // std::cout << "t is " << std::endl << -T.block(0,0,3,3).transpose()*T.block<3,1>(0,3) << std::endl;
-        Eigen::Vector3f PointInWorld = T.block(0,0,3,3).transpose()*PointInCam
-            -T.block(0,0,3,3).transpose()*T.block<3,1>(0,3);
+        // 这里的T表示 Tcw， 即从世界到相机
+        Eigen::Vector3f PointInWorld = T.block(0,0,3,3).transpose() * ( PointInCam
+            - T.block(0,0,3,3).transpose() * T.block<3,1>(0,3) );
         WorldPointsDict[PoseId]->emplace_back(PointInWorld(0), PointInWorld(1), PointInWorld(2));
     }
     // // CHECK POINT
@@ -521,7 +524,7 @@ double PoseSolver::ReProjectError(std::vector<cv::Point3f>&PointsInWorldVec_0
     Eigen::Vector4f P4;
     P4 << PointsInWorldVec_0[i].x, PointsInWorldVec_0[i].y, PointsInWorldVec_0[i].z, 1;
     Eigen::Vector4f CamCoord = T * P4;
-    Project(CamCoord,u4_);
+    Project(CamCoord, u4_);
     double error = sqrt(pow(u4(0)-u4_(0),2)+pow(u4(1)-u4_(1),2));
     // std::cout << "[TEST] ERROR IS :" << error << std::endl;
     return error;
@@ -670,4 +673,8 @@ void PoseSolver::CheckReProjrctError()
 
     exit(0);
 
+}
+
+Eigen::Matrix4f PoseSolver::GetPose(){
+    return T12_ransac;
 }

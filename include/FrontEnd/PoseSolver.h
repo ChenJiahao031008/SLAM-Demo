@@ -1,10 +1,10 @@
 /*
  * @Author: your name
  * @Date: 2021-03-28 17:41:54
- * @LastEditTime: 2021-10-07 19:45:06
- * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2021-10-09 14:42:35
+ * @LastEditors: Chen Jiahao
  * @Description: In User Settings Edit
- * @FilePath: /极线可视化/include/PoseSolver.h
+ * @FilePath: /SLAM-Demo/include/FrontEnd/PoseSolver.h
  */
 #ifndef POSESOLVER_H
 #define POSESOLVER_H
@@ -30,6 +30,7 @@ private:
 
     Eigen::Matrix4f Pose_0, Pose_1;
     Eigen::Vector3f CamOrientation_0, CamOrientation_1;
+    // T12 表示从上一时刻到下一时刻的位移
     Eigen::Matrix4f T12, T12_ransac;
 
     std::map<int, std::vector<cv::Point3f>* > PixelPointsDict;
@@ -72,6 +73,7 @@ public:
 
     Eigen::Matrix4f GetT12(){ return T12; };
 
+    Eigen::Matrix4f GetPose();
 };
 
 #endif // POSESOLVER_H
